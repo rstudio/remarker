@@ -1,12 +1,9 @@
 Package: remarker
-Title: What the Package Does (One Line, Title Case)
+Title: Translate Markdown to R data structures.
 Version: 0.0.0.9000
-Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+Authors@R:
+    person("Winston", "Chang", role = c("aut", "cre"),
+           email = "winston@rstudio.com")
 Description: What the package does (one paragraph).
 License: `use_mit_license()`, `use_gpl3_license()` or friends to
     pick a license
