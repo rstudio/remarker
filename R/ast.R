@@ -79,6 +79,24 @@ process_type <- function(x, type) {
     Str = {
       x
     },
+    Emph = {
+      list(
+        type = "emph",
+        process_type(x, "[Inline]")
+      )
+    },
+    Underline = {
+      list(
+        type = "underline",
+        process_type(x, "[Inline]")
+      )
+    },
+    Strong = {
+      list(
+        type = "strong",
+        process_type(x, "[Inline]")
+      )
+    },
     Code = {
       list(
         attr = process_type(x[[1]], "Attr"),
@@ -110,7 +128,10 @@ process_type <- function(x, type) {
       " "
     },
     SoftBreak = {
-      NULL
+      " "
+    },
+    LineBreak = {
+      "\n"
     },
 
     # ------------------------------
