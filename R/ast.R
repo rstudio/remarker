@@ -13,7 +13,7 @@ md_ast <- function(file) {
 }
 
 #' @export
-ast_to_md <- function(ast, outfile = NULL) {
+ast_md <- function(ast, outfile = NULL) {
   tmpfile_json <- tempfile()
   json <- toJSON(ast, auto_unbox = TRUE)
   writeLines(json, tmpfile_json)
