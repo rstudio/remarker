@@ -34,7 +34,8 @@ process_type <- function(x, type) {
     # ------------------------------
     "[Inline]" = {
       res <- lapply(x, process_type, "Inline")
-      flatten_strings(res)
+      res <- flatten(res)
+      join_strings(res)
     },
     Inline = {
       process_type(x[["c"]], x[["t"]])
@@ -164,9 +165,26 @@ process_type <- function(x, type) {
 }
 
 
+flatten <- function(x) {
+  # First descend into children and "hoist" them up if they're the right type.
+  x <- lapply(x, function(y) {
+    if (is.character(y)) return(y)
+
+    # If this is an unnamed list, it can be flattened (it's like a JSON array)
+    if (is.null(names(y))) return(flatten(y))
+
+    # If we got here, this is a node with a `type`, and shouldn't be flattened.
+    # Add an extra layer of list, so that when we unlist in the next step,
+    # it will go back to original state.
+    list(y)
+  })
+
+  unlist(x, recursive = FALSE)
+}
+
 # Given a list of mixed strings and lists, concatenate adjacent strings into a
 # single string wherever possible.
-flatten_strings <- function(x) {
+join_strings <- function(x) {
   runs <- rle(vapply(x, is.character, NA))
   starts <- cumsum(c(1L, runs$lengths)[seq_along(runs$lengths)])
 
@@ -176,8 +194,9 @@ flatten_strings <- function(x) {
         strs <- as.character(x[seq(start, length.out = len)], recursive = FALSE)
         paste(strs, collapse = "")
       } else {
-        if (len != 1)
+        if (len != 1) {
           stop("Sanity check failed: should be list (not a char vector) of length 1")
+        }
         x[start]
       }
     }
