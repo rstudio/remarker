@@ -16,11 +16,15 @@ md_ast <- function(file) {
     ),
     stdout = TRUE
   )
-  jsonlite::fromJSON(js, simplifyDataFrame = FALSE, simplifyVector = FALSE)
+
+  json <- jsonlite::fromJSON(js, simplifyDataFrame = FALSE, simplifyVector = FALSE)
+  add_class(json,  "pandoc_ast")
 }
 
 #' @export
 ast_md <- function(ast, outfile = NULL) {
+  stopifnot(inherits(x, "pandoc_ast"))
+
   tmpfile_json <- tempfile()
   json <- toJSON(ast, auto_unbox = TRUE)
   writeLines(json, tmpfile_json)
@@ -38,6 +42,8 @@ ast_md <- function(ast, outfile = NULL) {
 
 #' @export
 process_doc <- function(x) {
+  stopifnot(inherits(x, "pandoc_ast"))
+
   if (!setequal(names(x), c("pandoc-api-version", "meta", "blocks"))) {
     stop("process_doc requires a Pandoc AST object.")
   }
@@ -48,9 +54,7 @@ process_doc <- function(x) {
             ". remarker understands version 1.22.")
   }
 
-  x <- process_type(x, "Pandoc")
-
-
+  process_type(x, "Pandoc")
 }
 
 
