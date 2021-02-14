@@ -1,9 +1,16 @@
+pandoc_markdown_format <- paste0(
+  "markdown",
+  "+backtick_code_blocks",
+  "+fenced_code_attributes",
+  "+yaml_metadata_block",
+  "-hard_line_breaks"
+)
 
 #' @export
 md_ast <- function(file) {
   js <- system2("pandoc",
     args = c(
-      "-f", "markdown+backtick_code_blocks+fenced_code_attributes+yaml_metadata_block",
+      "-f", pandoc_markdown_format,
       "-t", "json",
       "-s", file
     ),
@@ -21,7 +28,8 @@ ast_md <- function(ast, outfile = NULL) {
     "pandoc",
     args = c(
       "-f", "json",
-      "-t", "markdown+backtick_code_blocks+fenced_code_attributes+yaml_metadata_block",
+      "-t", pandoc_markdown_format,
+      "--wrap=preserve",
       tmpfile_json,
       if (!is.null(outfile)) c("-o", outfile)
     )
