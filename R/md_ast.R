@@ -22,11 +22,11 @@ md_ast <- function(file) {
 }
 
 #' @export
-ast_md <- function(ast, outfile = NULL) {
+ast_md <- function(x, outfile = NULL) {
   stopifnot(inherits(x, "pandoc_ast"))
 
   tmpfile_json <- tempfile()
-  json <- toJSON(ast, auto_unbox = TRUE)
+  json <- toJSON(unclass(x), auto_unbox = TRUE)
   writeLines(json, tmpfile_json)
   system2(
     "pandoc",
