@@ -3,9 +3,12 @@
 md_ast <- function(file) {
   js <- system2("pandoc",
     args = c(
-      "-f",
-      "markdown+backtick_code_blocks+fenced_code_attributes+yaml_metadata_block",
-      "-t", "json", "-s", file), intern = TRUE)
+      "-f", "markdown+backtick_code_blocks+fenced_code_attributes+yaml_metadata_block",
+      "-t", "json",
+      "-s", file
+    ),
+    stdout = TRUE
+  )
   jsonlite::fromJSON(js, simplifyDataFrame = FALSE, simplifyVector = FALSE)
 }
 
@@ -60,21 +63,7 @@ process_type <- function(x, type) {
     # ------------------------------
     "[Inline]" = {
       res <- lapply(x, process_type, "Inline")
-      runs <- rle(vapply(res, is.character, NA))
-      starts <- cumsum(c(1L, runs$lengths)[seq_along(runs$lengths)])
-
-      z <- mapply(start = starts, len = runs$lengths, ischar = runs$values,
-        FUN = function(start, len, ischar) {
-          if (ischar) {
-            strs <- unlist(res[seq(start, length.out = len)], recursive = FALSE)
-            paste(strs, collapse = "")
-          } else {
-            if (len != 1)
-              stop("Sanity check failed: should be list (not a char vector) of length 1")
-            res[start]
-          }
-        }
-      )
+      flatten_strings(res)
     },
     Inline = {
       process_type(x[["c"]], x[["t"]])
@@ -107,7 +96,7 @@ process_type <- function(x, type) {
     QuoteType = {
       if      (x[["t"]] == "DoubleQuote") '"'
       else if (x[["t"]] == "SingleQuote") "'"
-      else "?Unknown quote?"
+      else stop("Unknown quote type:", x[["t"]])
     },
     Space = {
       " "
@@ -177,6 +166,27 @@ process_type <- function(x, type) {
     },
     {
       stop("Unknown type: ", type)
+    }
+  )
+}
+
+
+# Given a list of mixed strings and lists, concatenate adjacent strings into a
+# single string wherever possible.
+flatten_strings <- function(x) {
+  runs <- rle(vapply(x, is.character, NA))
+  starts <- cumsum(c(1L, runs$lengths)[seq_along(runs$lengths)])
+
+  mapply(start = starts, len = runs$lengths, ischar = runs$values,
+    FUN = function(start, len, ischar) {
+      if (ischar) {
+        strs <- unlist(x[seq(start, length.out = len)], recursive = FALSE)
+        paste(strs, collapse = "")
+      } else {
+        if (len != 1)
+          stop("Sanity check failed: should be list (not a char vector) of length 1")
+        x[start]
+      }
     }
   )
 }
