@@ -15,9 +15,12 @@ ast_ir <- function(x) {
 
   x <- process_type(x, "Pandoc")
 
-  list(
-    meta = x$meta,
-    content = group_sections(x$blocks)
+  add_class(
+    list(
+      meta = x$meta,
+      content = group_sections(x$blocks)
+    ),
+    "remarker"
   )
 }
 
