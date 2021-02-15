@@ -172,10 +172,15 @@ process_type <- function(x, type) {
       ))
     },
     BulletList = {
-      as.list(c(
+      items <- process_type(x, "[[Block]]")
+      items <- lapply(items, function(y) {
+        list(type = "item", children = y)
+      })
+
+      list(
         type = "bulletlist",
-        process_type(x, "[[Block]]")
-      ))
+        children = items
+      )
     },
     HorizontalRule = {
       list(

@@ -12,6 +12,15 @@ ir_r <- function(x, indent = 0) {
     para = {
       sprintf('p(%s)', ir_r_children(x, indent + 2))
     },
+    italic = {
+      sprintf('tags$i(%s)', ir_r_children(x, indent + 2))
+    },
+    bold = {
+      sprintf('tags$b(%s)', ir_r_children(x, indent + 2))
+    },
+    underline = {
+      sprintf('tags$u(%s)', ir_r_children(x, indent + 2))
+    },
     header = {
       sprintf('h%s(id = "%s", %s)',
         x$depth,
@@ -25,14 +34,24 @@ ir_r <- function(x, indent = 0) {
     codeblock = {
       sprintf("pre('%s')", escape_dbl_quotes(as.character(x$children)))
     },
+    horizontalrule = {
+      "hr()"
+    },
+    bulletlist = {
+      sprintf("tags$ul(%s)", ir_r_children(x, indent + 2))
+    },
+    item = {
+      sprintf("tags$li(%s)", ir_r_children(x, indent + 2))
+    },
     {
       ""
     }
   )
 }
 
+
 ir_r_children <- function(x, indent = 0) {
-  res <- map(x$children, ir_r, indent = indent)
+  res <- lapply(x$children, ir_r, indent = indent)
 
   if (length(res) > 1) {
     indent_txt <- paste0(rep(" ", indent), collapse = "")
