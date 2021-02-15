@@ -20,7 +20,7 @@ ast_ir <- function(x) {
       meta = x$meta,
       content = group_sections(x$blocks)
     ),
-    "remarker"
+    "remarker_ir"
   )
 }
 

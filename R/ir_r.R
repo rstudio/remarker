@@ -1,6 +1,10 @@
 #' Convert a remarker IR object to R code
 #' @export
 ir_r <- function(x, indent = 0, server = fastmap::faststack()) {
+  if (inherits(x, "remarker_ir")) {
+    return(ir_r(x$content))
+  }
+
   if (is.character(x)) {
     return(paste0('"', escape_dbl_quotes(x), '"'))
   }
@@ -47,7 +51,7 @@ ir_r <- function(x, indent = 0, server = fastmap::faststack()) {
     },
     codeblock = {
       if ("ui" %in% x$class) {
-        sprintf("{%s}", escape_dbl_quotes(as.character(x$children)))
+        sprintf("{%s}", as.character(x$children))
 
       } else if ("server" %in% x$class) {
         server$push(as.character(x$children))
@@ -99,4 +103,12 @@ print.remarker_r <- function(x, ...) {
     "\n\n====================\nServer code\n====================\n",
     attr(x, "server", exact = TRUE)
   )
+}
+
+
+#' @export
+app_r <- function(x) {
+  ui <- eval(parse(text = x))
+  server <- eval(parse(text = attr(x, "server", exact = TRUE)))
+  shinyApp(ui, server)
 }
