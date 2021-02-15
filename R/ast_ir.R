@@ -16,6 +16,42 @@ ast_ir <- function(x) {
   process_type(x, "Pandoc")
 }
 
+#' @export
+group_sections <- function(x) {
+  # Add root node
+  x <- c(
+    list(list(
+      type  = "header",
+      depth = 0L,
+      id    = "",
+      class = character(),
+      attr = named_chr(),
+      children = list()
+    )),
+    x
+  )
+
+  # Step 1: group all non-section content in sections
+  start_idx <- map_chr(x, "type", .default = "")
+  start_idx <- which(start_idx == "header")
+
+  stop_idx <- c(start_idx[-1] - 1, length(x))
+
+  sections <- map2(start_idx, stop_idx, function(start, stop) {
+    header_node <- x[[start]]
+    list(
+      type  = "section",
+      depth = header_node[["depth"]],
+      id    = header_node[["id"]],
+      class = header_node[["class"]],
+      attr  = header_node[["attr"]],
+      children = x[seq(start, stop)]
+    )
+  })
+
+  sections
+}
+
 
 #' @export
 process_type <- function(x, type) {

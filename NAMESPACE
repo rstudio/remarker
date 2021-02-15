@@ -2,5 +2,6 @@
 
 export(ast_ir)
 export(ast_md)
+export(group_sections)
 export(md_ast)
 export(process_type)
