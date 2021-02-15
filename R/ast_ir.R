@@ -44,29 +44,29 @@ process_type <- function(x, type) {
       x
     },
     Emph = {
-      list(
+      as.list(c(
         type = "italic",
         children = process_type(x, "[Inline]")
-      )
+      ))
     },
     Underline = {
-      list(
+      as.list(c(
         type = "underline",
         children = process_type(x, "[Inline]")
-      )
+      ))
     },
     Strong = {
-      list(
+      as.list(c(
         type = "bold",
         children = process_type(x, "[Inline]")
-      )
+      ))
     },
     Code = {
-      c(
+      as.list(c(
         type = "code",
         process_type(x[[1]], "Attr"),
         children = process_type(x[[2]], "Text")
-      )
+      ))
     },
     Quoted = {
       #TODO: Flatten
@@ -115,25 +115,31 @@ process_type <- function(x, type) {
       process_type(x, "[Inline]")
     },
     Para = {
-      process_type(x, "[Inline]")
+      as.list(c(
+        type = "para",
+        process_type(x, "[Inline]")
+      ))
     },
     CodeBlock = {
-      c(
+      as.list(c(
         type = "codeblock",
         process_type(x[[1]], "Attr"),
         children = process_type(x[[2]], "Text")
-      )
+      ))
     },
     Header = {
-      c(
+      as.list(c(
         type  = "header",
         depth = process_type(x[[1]], "Int"),
         process_type(x[[2]], "Attr"),
         children  = process_type(x[[3]], "[Inline]")
-      )
+      ))
     },
     BulletList = {
-      process_type(x, "[[Block]]")
+      as.list(c(
+        type = "bulletlist",
+        process_type(x, "[[Block]]")
+      ))
     },
     HorizontalRule = {
       x
