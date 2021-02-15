@@ -15,3 +15,7 @@ add_class <- function(x, class) {
   class(x) <- class
   x
 }
+
+escape_dbl_quotes <- function(x) {
+  gsub('"', '\\"', x)
+}

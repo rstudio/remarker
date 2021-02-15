@@ -151,10 +151,10 @@ process_type <- function(x, type) {
       process_type(x, "[Inline]")
     },
     Para = {
-      as.list(c(
+      list(
         type = "para",
-        process_type(x, "[Inline]")
-      ))
+        children = process_type(x, "[Inline]")
+      )
     },
     CodeBlock = {
       as.list(c(
