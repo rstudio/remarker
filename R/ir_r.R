@@ -6,6 +6,9 @@ ir_r <- function(x, indent = 0) {
   }
 
   switch(x$type,
+    document = {
+      sprintf('tagList(%s)', ir_r_children(x, indent + 2))
+    },
     section = {
       sprintf('tagList(%s)', ir_r_children(x, indent + 2))
     },

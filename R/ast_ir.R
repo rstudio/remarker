@@ -13,7 +13,12 @@ ast_ir <- function(x) {
             ". remarker understands version 1.22.")
   }
 
-  process_type(x, "Pandoc")
+  x <- process_type(x, "Pandoc")
+
+  list(
+    meta = x$meta,
+    content = group_sections(x$blocks)
+  )
 }
 
 #' @export
@@ -49,7 +54,10 @@ group_sections <- function(x) {
     )
   })
 
-  sections
+  list(
+    type = "document",
+    children = sections
+  )
 }
 
 
