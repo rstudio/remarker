@@ -142,7 +142,9 @@ process_type <- function(x, type) {
       ))
     },
     HorizontalRule = {
-      x
+      list(
+        type = "horizontalrule"
+      )
     },
 
     # ------------------------------
