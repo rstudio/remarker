@@ -26,6 +26,8 @@ ir_r <- function(x, indent = 0, .data = NULL) {
       if (.data$layout$size() == 0) {
         ui_txt <- map_chr(ui_txt, "text")
         ui_txt <- paste(ui_txt, collapse = ",\n")
+        ui_txt <- paste0("tagList(\n", ui_txt, "\n)")
+
       } else {
         layout_txt <- paste(.data$layout$as_list(), collapse = ",\n")
         args <- map(ui_txt, "text")
@@ -98,6 +100,9 @@ ir_r <- function(x, indent = 0, .data = NULL) {
       } else {
         sprintf("pre('%s')", escape_dbl_quotes(as.character(x$children)))
       }
+    },
+    codewrapper = {
+      sprintf("%s(%s)", x$attr[["fn"]], ir_r_children(x, indent + 2, .data))
     },
     horizontalrule = {
       "hr()"
