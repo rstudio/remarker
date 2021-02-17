@@ -94,7 +94,8 @@ ir_r <- function(x, indent = 0, .data = NULL) {
         NULL
 
       } else if ("layout" %in% x$class) {
-        .data$layout$push(as.character(x$children))
+
+        .data$layout$push(transform_layout(x)$children)
         NULL
 
       } else {
@@ -152,6 +153,7 @@ print.remarker_r <- function(x, ...) {
 
 #' @export
 app_r <- function(x) {
+  library(shiny)
   ui <- eval(parse(text = x))
   server <- eval(parse(text = attr(x, "server", exact = TRUE)))
   shinyApp(ui, server)

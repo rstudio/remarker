@@ -79,15 +79,15 @@ The first is that the layout is defined as follows:
 
 ````
 ``` {.layout .grid}
-| sidebar | main_panel |
-|---------|------------|
-| sidebar | main_panel |
+|      |250px   |1fr        |1fr        |
+|:-----|:-------|:----------|:----------|
+|100px |header  |header     |header     |
+|1fr   |sidebar |main_panel |main_panel |
+|1fr   |sidebar |main_panel |main_panel |
 ```
 ````
 
 This defines a grid layout. A transformer function converts this into the appropriate HTML and CSS for the layout.
-
-> NOTE: The grid layout transformer doesn't work yet...
 
 The second part of interest is the main panel. It has the class `.card`. Remarker has a transformer registered for sections with this class, which is explained in the section itself:
 

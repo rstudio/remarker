@@ -1,13 +1,14 @@
 ``` {.layout .grid}
-fluidPage(
-  sidebarPanel(
-    {{ sidebar }}
-  ),
-  mainPanel(
-    {{ main_panel }}
-  )
-)
+|      |250px   |1fr        |1fr        |
+|:-----|:-------|:----------|:----------|
+|100px |header  |header     |header     |
+|1fr   |sidebar |main_panel |main_panel |
+|1fr   |sidebar |main_panel |main_panel |
 ```
+
+
+## Header title here {#header}
+
 
 ## Sidebar title here {#sidebar}
 
