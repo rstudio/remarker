@@ -1,7 +1,12 @@
 ``` {.layout .grid}
-| sidebar | main |
-|---------|------|
-| sidebar | main |
+fluidPage(
+  sidebarPanel(
+    {{ sidebar }}
+  ),
+  mainPanel(
+    {{ main_panel }}
+  )
+)
 ```
 
 ## Sidebar title here {#sidebar}
@@ -25,13 +30,11 @@ selectInput("select", "Select:", LETTERS)
 
 ## Main panel {#main_panel .card}
 
-Here's some text. Some of it is *italic*; some of it is **bold**; some of it is `inlined code`.
+This section is transformed into a **card**. The section heading is displayed with `H3` (instead of the normal `H2`), and the entire content is wrapped in a `wellPanel()`.
 
 ``` {.r .ui}
 plotOutput("plot")
 ```
-
-This is a description of the plot above: it's a bunch of points in a line.
 
 ``` {.r .server}
 output$plot <- renderPlot({

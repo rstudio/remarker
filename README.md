@@ -31,7 +31,8 @@ Remarker operates in three phases:
 -   `md_ast()`: Reads in the Markdown document and converting to the
     Pandoc AST. This requires Pandoc to be installed.
 -   `ast_ir()`: Converts the Pandoc AST to remarker’s intermediate
-    representation (IR).
+    representation (IR), which contains the same information, but in a
+    format that’s more concise and easier to manipulate.
 -   `ir_transform()`: Applies user-defined transformations on the IR.
 -   `ir_r()`: Converts the IR to R code which uses htmltools to do the
     HTML markup. This R code can then be executed.
@@ -107,17 +108,95 @@ x2
 #> }
 ```
 
-And this can be run as a Shiny application with `run_r()`:
+And this can be run as a Shiny application with `app_r()`:
 
 ``` r
-run_r(x2)
+app_r(x2)
 ```
 
-It’s even possible to convert the IR
+### A Shiny application with transformations
+
+A Shiny application with transformations is in
+[inst/examples/shiny\_transform.md](inst/examples/shiny_transform.md).
+This has two notable parts.
+
+The first is that the layout is defined as follows:
+
+    ``` {.layout .grid}
+    | sidebar | main_panel |
+    |---------|------------|
+    | sidebar | main_panel |
+    ```
+
+This defines a grid layout. A transformer function converts this into
+the appropriate HTML and CSS for the layout.
+
+> NOTE: The grid layout transformer doesn’t work yet…
+
+The second part of interest is the main panel. It has the class `.card`.
+Remarker has a transformer registered for sections with this class,
+which is explained in the section itself:
+
+    ## Main panel {#main_panel .card}
+
+    This section is transformed into a **card**. The section heading is displayed with `H3` (instead of the normal `H2`), and the entire content is wrapped in a `wellPanel()`.
+
+    ``` {.r .ui}
+    plotOutput("plot")
+    ```
+
+    ``` {.r .server}
+    output$plot <- renderPlot({
+      plot(seq_len(input$x))
+    })
+    ```
+
+The R code for the transformed section looks like this:
 
 ``` r
-z <- md_ast("temp/simple_md.Rmd")
-z1 <- ast_ir(z)
-z2 <- ir_r(z1)
-z2 %>% parse(text = .) %>% eval() %>% htmltools::browsable()
+  mainPanel(
+    tagList(wellPanel(
+      h3(id = "main_panel", "Main panel"),
+      p(
+        "This section is transformed into a ",
+        tags$b("card"),
+        ". The section heading is displayed with ",
+        code("H3"),
+        " (instead of the normal ",
+        code("H2"),
+        "), and the entire content is wrapped in a ",
+        code("wellPanel()"),
+        "."
+      ),
+      {plotOutput("plot")},
+      NULL
+    ))
+  )
+```
+
+To test it out:
+
+``` r
+md_file <- system.file("examples/shiny_transform.md", package = "remarker")
+
+x <- md_ast(md_file)   # Convert Markdown to Pandoc AST
+x1 <- ast_ir(x)        # Convert to remarker IR
+x2 <- ir_transform(x1) # Apply transformations
+x3 <- ir_r(x2)         # Convert IR to R code
+
+app_r(x3)
+```
+
+### Static HTML output
+
+It’s even possible to convert the IR to static HTML, without Shiny.
+
+``` r
+md_file <- system.file("examples/simple_md.md", package = "remarker")
+x <- md_ast(md_file)
+x1 <- ast_ir(x)
+x2 <- ir_r(x1)
+
+# Display output in the Viewer panel
+x2 %>% parse(text = .) %>% eval() %>% htmltools::browsable()
 ```

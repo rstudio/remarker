@@ -35,31 +35,20 @@ transform_register <- function(name, f) {
 }
 
 transform_register("card", function(x) {
+  children <- x$children
+  stopifnot(children[[1]]$type == "header")
+  children[[1]]$depth <- 3
+
   # Put everything into a wellpanel
-  x$children <- c(
-    x$children[1],
-    list(list(
+  x$children <- list(
+    list(
       type = "codewrapper",
       id = "",
       class = character(0),
       attr = c(fn = "wellPanel"),
-      children = c(
-        list(list(
-          type = "header",
-          depth = 3,
-          id = "",
-          class = character(0),
-          attr = named_chr(),
-          children = x$children[2]
-        )),
-        x$children[-1:-2]
-      )
-    ))
+      children = children
+    )
   )
-
-  # Extract first paragraph and turn it
-  # str(x)
-  # browser()
 
   x
 })
