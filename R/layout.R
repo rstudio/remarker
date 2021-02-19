@@ -28,16 +28,19 @@ layout_register("grid", function(x) {
     grid_obj[grid_obj == content_ids[i]] <- wrapper_ids[i]
   }
 
-  css <- layout_to_css(grid_obj)
+  css <- layout_to_css(grid_obj, "#grid-container")
 
   divs_txt <- paste0('div(id = "', wrapper_ids, '", {{ ', content_ids , ' }})',
     collapse = ",\n")
 
   txt <- sprintf('
-    tags$body(
-      style = "display: grid;",
+    bootstrapPage(
       tags$head(tags$style(HTML("%s"))),
-      %s
+      div(
+        id = "grid-container",
+        style = "display: grid;",
+        %s
+      )
     )',
     escape_dbl_quotes(css),
     divs_txt

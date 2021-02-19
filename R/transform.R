@@ -38,6 +38,10 @@ transform_register("card", function(x) {
   children <- x$children
   stopifnot(children[[1]]$type == "header")
   children[[1]]$depth <- 3
+  children[3:(length(children) + 1)] <- children[2:length(children)]
+  children[[2]] <- list(
+    type = "horizontalrule"
+  )
 
   # Put everything into a wellpanel
   x$children <- list(

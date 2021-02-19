@@ -31,7 +31,7 @@ selectInput("select", "Select:", LETTERS)
 
 ## Main panel {#main_panel .card}
 
-This section is transformed into a **card**. The section heading is displayed with `H3` (instead of the normal `H2`), and the entire content is wrapped in a `wellPanel()`.
+This section is transformed into a **card**. The section heading is displayed with `H3` (instead of the normal `H2`), a horizontal rule is added below it, and the entire content is wrapped in a `wellPanel()`.
 
 ``` {.r .ui}
 plotOutput("plot")
