@@ -31,11 +31,7 @@ function unwrap_quotes (inlines)
       quote_inlines = inlines[i].c[2]
 
       out_inlines:insert(quote_str(quote_type))
-
-      for j = 1, #quote_inlines, 1 do
-        out_inlines:insert(quote_inlines[j])
-      end
-
+      out_inlines:extend(quote_inlines)
       out_inlines:insert(quote_str(quote_type))
 
     else
