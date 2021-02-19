@@ -12,6 +12,7 @@ md_ast <- function(file) {
     args = c(
       "-f", pandoc_markdown_format,
       "-t", "json",
+      "--lua-filter", system.file("lua_filters/collapse_strings.lua", package = "remarker"),
       "-s", file
     ),
     stdout = TRUE
