@@ -19,7 +19,7 @@ layout_register <- function(name, f) {
 }
 
 layout_register("grid", function(x) {
-  grid_obj <- grid_layout_from_md(x$children)
+  grid_obj <- gridlayout::md_to_gridlayout(x$children)
 
   content_ids <- unique(grid_obj)
   wrapper_ids <- paste0(content_ids, "_wrap")
@@ -28,7 +28,7 @@ layout_register("grid", function(x) {
     grid_obj[grid_obj == content_ids[i]] <- wrapper_ids[i]
   }
 
-  css <- layout_to_css(grid_obj, "#grid-container")
+  css <- gridlayout::to_css(grid_obj, "#grid-container")
 
   divs_txt <- paste0('div(id = "', wrapper_ids, '", {{ ', content_ids , ' }})',
     collapse = ",\n")
