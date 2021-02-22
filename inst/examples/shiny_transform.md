@@ -1,6 +1,7 @@
 ``` {.layout .grid}
-|      |250px   |1fr        |1fr        |
-|:-----|:-------|:----------|:----------|
+|      |        |           |           |
+|------|--------|-----------|-----------|
+|1rem  |250px   |1fr        |1fr        |
 |100px |header  |header     |header     |
 |1fr   |sidebar |main_panel |main_panel |
 |1fr   |sidebar |main_panel |main_panel |
