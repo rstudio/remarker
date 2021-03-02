@@ -7,16 +7,21 @@ pandoc_markdown_format <- paste0(
 )
 
 #' @export
-md_ast <- function(file) {
-  js <- system2("pandoc",
-    args = c(
-      "-f", pandoc_markdown_format,
-      "-t", "json",
-      "--lua-filter", system.file("lua_filters/collapse_strings.lua", package = "remarker"),
-      "-s", file
-    ),
-    stdout = TRUE
+md_ast <- function(file = NULL, text = NULL, collapse_strings = TRUE) {
+  if (!xor(is.null(file), is.null(text))) {
+    stop("Must have exactly one of `file` or `text`.")
+  }
+
+  args <- c(
+    "-f", pandoc_markdown_format,
+    "-t", "json",
+    if (collapse_strings) {
+      c("--lua-filter", system.file("lua_filters/collapse_strings.lua", package = "remarker"))
+    },
+    if (!is.null(file)) c("-s", file)
   )
+
+  js <- system2("pandoc", args = args, input = text, stdout = TRUE)
 
   json <- jsonlite::fromJSON(js, simplifyDataFrame = FALSE, simplifyVector = FALSE)
   add_class(json,  "pandoc_ast")
@@ -25,9 +30,10 @@ md_ast <- function(file) {
 #' @export
 ast_md <- function(x, outfile = NULL) {
   stopifnot(inherits(x, "pandoc_ast"))
+  stopifnot(is.character(outfile))
 
   tmpfile_json <- tempfile()
-  json <- toJSON(unclass(x), auto_unbox = TRUE)
+  json <- jsonlite::toJSON(unclass(x), auto_unbox = TRUE)
   writeLines(json, tmpfile_json)
   system2(
     "pandoc",
@@ -40,3 +46,5 @@ ast_md <- function(x, outfile = NULL) {
     )
   )
 }
+
+
