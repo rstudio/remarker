@@ -2,27 +2,88 @@
 # =====================================================================
 # Block components
 # =====================================================================
-validate_blocks <- function(blocks) {
-  if ( !(is.null(blocks) || is_unnamed_list(blocks)) ) {
-    stop("`blocks` object must be NULL or an unnamed list")
+
+#' @export
+Blocks <- function(...) {
+  x <- list(...)
+  as_Blocks(x)
+}
+
+#' @export
+Blockss <- function(...) {
+  x <- list(...)
+  as_Blockss(x)
+}
+
+block_types <- c(
+  "BlockQuote",
+  "BulletList",
+  "CodeBlock",
+  "DefinitionList",
+  "Div",
+  "Header",
+  "HorizontalRule",
+  "LineBlock",
+  "Null",
+  "OrderedList",
+  "Para",
+  "Plain",
+  "RawBlock",
+  "Table"
+)
+
+#' @export
+as_Blocks <- function(x, classify_ = FALSE) {
+  if (inherits(x, "Blocks")) {
+    return(x)
   }
 
-  for (x in blocks) {
-    if (!inherits(x, "Block")) {
-      stop('All elements in `blocks` must have class "Block".')
+  if (is.null(x)) {
+    x <- list()
+  }
+  if (!is_unnamed_list(x)) {
+    stop("`x` must be NULL or an unnamed list")
+  }
+
+  for (i in seq_along(x)) {
+    if (classify_) {
+      if (x[[i]][["t"]] %in% block_types) {
+        class(x[[i]]) <- "Block"
+      } else {
+        stop("Unknown block type: ", x[[i]][["t"]])
+      }
+
+    } else {
+      if (!inherits(x[[i]], "Block")) {
+        stop('All elements in `x` must have class "Block".')
+      }
     }
   }
+
+  class(x) <- "Blocks"
+  x
 }
 
-validate_blockss <- function(blockss) {
-  if ( !(is.null(blockss) || is_unnamed_list(blockss)) ) {
-    stop("`blockss` object must be NULL or an unnamed list")
+#' @export
+as_Blockss <- function(x, classify_ = FALSE) {
+  if (inherits(x, "Blockss")) {
+    return(x)
+  }
+  if (is.null(x)) {
+    x <- list()
+  }
+  if (!is_unnamed_list(x)) {
+    stop("`x` must be NULL or an unnamed list")
   }
 
-  for (x in blockss) {
-    validate_blocks(x)
+  # Slightly better error messages than lapply(); should be as fast or faster.
+  for (i in seq_along(x)) {
+    x[[i]] <- as_Blocks(x[[i]], classify_ = classify_)
   }
+  class(x) <- "Blockss"
+  x
 }
+
 
 #' @export
 Block <- function(type, content = NULL) {
@@ -39,13 +100,13 @@ Block <- function(type, content = NULL) {
 
 #' @export
 BlockQuote <- function(content) {
-  validate_blocks(content)
+  content <- as_Blocks(content)
   Block("BlockQuote", content)
 }
 
 #' @export
 BulletList <- function(content) {
-  validate_blockss(content)
+  content <- as_Blocks(content)
   Block("BulletList", content)
 }
 
@@ -64,14 +125,14 @@ DefinitionList <- function(content) {
 #' @export
 Div <- function(content, attr = Attr()) {
   validate_attr(attr)
-  validate_blocks(content)
+  content <- as_Blocks(content)
   Block("Div", list(attr, content))
 }
 
 #' @export
 Header <- function(level, content, attr = Attr()) {
   stopifnot(is_numeric(level))
-  validate_inlines(content)
+  content <- as_Inlines(content)
   validate_attr(attr)
   Block("Header", list(level, attr, content))
 }
@@ -83,7 +144,7 @@ HorizontalRule <- function() {
 
 #' @export
 LineBlock <- function(content) {
-  validate_inliness(content)
+  content <- as_Inliness(content)
   Block("LineBlock", content)
 }
 
@@ -94,20 +155,19 @@ Null <- function() {
 
 #' @export
 OrderedList <- function(items, listAttributes) {
-  validate_blockss(items)
-
+  items <- as_Blocks(items)
   Block("OrderedList", list(listAttributes, items))
 }
 
 #' @export
 Para <- function(content) {
-  validate_inlines(content)
+  content <- as_Inlines(content)
   Block("Para", content)
 }
 
 #' @export
 Plain <- function(content) {
-  validate_inlines(content)
+  content <- as_Inlines(content)
   Block("Plain", content)
 }
 
@@ -131,26 +191,95 @@ Table <- function(caption = Caption(), colspecs, head, bodies, foot, attr = Attr
 # Inline components
 # =====================================================================
 
-validate_inlines <- function(inlines) {
-  if ( !(is.null(inlines) || is_unnamed_list(inlines)) ) {
-    stop("`inlines` object must be NULL or an unnamed list")
-  }
-
-  for (x in inlines) {
-    if (!inherits(x, "Inline")) {
-      stop('All elements in `inlines` must have class "Inline".')
-    }
-  }
+#' @export
+Inlines <- function(...) {
+  x <- list(...)
+  as_Inlines(x)
 }
 
-validate_inliness <- function(inliness) {
-  if ( !(is.null(inliness) || is_unnamed_list(inliness)) ) {
-    stop("`inliness` object must be NULL or an unnamed list")
+#' @export
+Inliness <- function(...) {
+  x <- list(...)
+  as_Inliness(x)
+}
+
+
+inline_types <- c(
+  "Cite",
+  "Code",
+  "Emph",
+  "Image",
+  "LineBreak",
+  "Link",
+  "Math",
+  "Note",
+  "Quoted",
+  "RawInline",
+  "SmallCaps",
+  "SoftBreak",
+  "Space",
+  "Span",
+  "Str",
+  "Strikeout",
+  "Strong",
+  "Subscript",
+  "Superscript",
+  "Underline"
+)
+
+
+#' @export
+as_Inlines <- function(x, classify_ = FALSE) {
+  if (inherits(x, "Inlines")) {
+    return(x)
   }
 
-  for (x in inliness) {
-    validate_inlines(x)
+  if (is.null(x)) {
+    x <- list()
   }
+  if (!is_unnamed_list(x)) {
+    stop("`x` must be NULL or an unnamed list")
+  }
+
+  for (i in seq_along(x)) {
+    if (classify_) {
+      if (x[[i]][["t"]] %in% inline_types) {
+        class(x[[i]]) <- "Inline"
+      } else {
+        stop("Unknown inline type: ", x[[i]][["t"]])
+      }
+
+    } else {
+      if (!inherits(x[[i]], "Inline")) {
+        stop('All elements in `x` must have class "Inline".')
+      }
+    }
+  }
+
+  class(x) <- "Inlines"
+  x
+}
+
+#' @export
+as_Inliness <- function(inliness, classify_ = FALSE) {
+  if (inherits(x, "Inliness")) {
+    return(x)
+  }
+
+  if (is.null(x)) {
+    x <- list()
+  }
+  if (!is_unnamed_list(x)) {
+    stop("`x` must be NULL or an unnamed list")
+  }
+
+  # Slightly better error messages than lapply(); should be as fast or faster.
+  for (i in seq_along(x)) {
+    x[[i]] <- as_Inlines(x[[i]], classify_ = classify_)
+  }
+
+  class(x) <- "Inliness"
+  x
 }
 
 
@@ -169,8 +298,7 @@ Inline <- function(type, content = NULL) {
 
 #' @export
 Cite <- function(content, citations) {
-  validate_inlines(content)
-
+  content <- as_Inlines(content)
   Inline("Cite", list(citations, content))
 }
 
@@ -181,14 +309,14 @@ Code <- function(text, attr = Attr()) {
 
 #' @export
 Emph <- function(content) {
-  validate_inlines(content)
+  content <- as_Inlines(content)
   Inline("Emph", content)
 }
 
 #' @export
 Image <- function(caption = list(), src, title = "", attr = Attr()) {
   validate_attr(attr)
-  validate_inlines(caption)
+  caption <- as_Inlines(caption)
 
   Inline("Image", list(attr, caption, Target_(src, title)))
 }
@@ -201,7 +329,7 @@ LineBreak <- function() {
 #' @export
 Link <- function(content, target, title = "", attr = Attr()) {
   validate_attr(attr)
-  validate_inlines(content)
+  content <- as_Inlines(content)
 
   Inline("Link", list(attr, content, Target_(target, title)))
 }
@@ -213,13 +341,13 @@ Math <- function(mathtype, text) {
 
 #' @export
 Note <- function(content) {
-  validate_blocks(content)
+  content <- as_Blocks(content)
   Inline("Note", content)
 }
 
 #' @export
 Quoted <- function(quotetype, content) {
-  validate_inlines(content)
+  content <- as_Inlines(content)
   Inline("Quoted", list(QuoteType_(quotetype), content))
 }
 
@@ -246,7 +374,7 @@ RawInline <- function(format, text) {
 
 #' @export
 SmallCaps <- function(content) {
-  validate_blocks(content)
+  content <- as_Blocks(content)
   Inline("SmallCaps", content)
 }
 
@@ -263,7 +391,7 @@ Space <- function() {
 #' @export
 Span <- function(content, attr = Attr()) {
   validate_attr(attr)
-  validate_inlines(content)
+  content <- as_Inlines(content)
 
   Inline("Span", list(attr, content))
 }
@@ -276,31 +404,31 @@ Str <- function(text) {
 
 #' @export
 Strikeout <- function(content) {
-  validate_inlines(content)
+  content <- as_Inlines(content)
   Inline("Strikeout", content)
 }
 
 #' @export
 Strong <- function(content) {
-  validate_inlines(content)
+  content <- as_Inlines(content)
   Inline("Strong", content)
 }
 
 #' @export
 Subscript <- function(content) {
-  validate_inlines(content)
+  content <- as_Inlines(content)
   Inline("Subscript", content)
 }
 
 #' @export
 Superscript <- function(content) {
-  validate_inlines(content)
+  content <- as_Inlines(content)
   Inline("Superscript", content)
 }
 
 #' @export
 Underline <- function(content) {
-  validate_inlines(content)
+  content <- as_Inlines(content)
   Inline("Underline", content)
 }
 
@@ -336,8 +464,8 @@ validate_attr <- function(attr) {
 
 Caption_ <- function(long = NULL, short = list()) {
   # Currently not sure how to use block-level captions
-  validate_blocks(long)
-  validate_inlines(short)
+  long <- as_Blocks(long)
+  short <- as_Inlines(short)
   add_class(
     list(long, short),
     "Caption"

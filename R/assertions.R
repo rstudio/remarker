@@ -7,11 +7,6 @@ is_numeric <- function(x, .length = 1) {
   is.numeric(x) && length(x) == .length &&  all(! is.na(x))
 }
 
-# is_classes <- function(x) {
-#   for (i in x)
-#   all(
-# }
-
 is_all_named <- function(x) {
   length(names(x)) == length(x) && all(names(x) != "")
 }

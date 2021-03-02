@@ -6,8 +6,12 @@ pandoc_markdown_format <- paste0(
   "-hard_line_breaks"
 )
 
+#' Read in Markdown content and return the Pandoc AST
+#'
+#' @param file A filename. Cannot be used with `text`.
+#' @param text Markdown text. Cannot be used with `file`.
 #' @export
-md_ast <- function(file = NULL, text = NULL, collapse_strings = TRUE) {
+md_ast <- function(file = NULL, text = NULL, collapse_strings = TRUE, classify = TRUE) {
   if (!xor(is.null(file), is.null(text))) {
     stop("Must have exactly one of `file` or `text`.")
   }
@@ -21,12 +25,19 @@ md_ast <- function(file = NULL, text = NULL, collapse_strings = TRUE) {
     if (!is.null(file)) c("-s", file)
   )
 
-  js <- system2("pandoc", args = args, input = text, stdout = TRUE)
+  json <- system2("pandoc", args = args, input = text, stdout = TRUE)
 
-  json <- jsonlite::fromJSON(js, simplifyDataFrame = FALSE, simplifyVector = FALSE)
-  add_class(json,  "pandoc_ast")
+  ast <- jsonlite::fromJSON(json, simplifyDataFrame = FALSE, simplifyVector = FALSE)
+  if (classify) {
+    ast$blocks <- as_Blocks(ast$blocks, classify_ = TRUE)
+  }
+  add_class(ast,  "pandoc_ast")
 }
 
+#' Given a Pandoc AST, write to a file
+#'
+#' @param x AST object.
+#' @param outfile Output filename.
 #' @export
 ast_md <- function(x, outfile = NULL) {
   stopifnot(inherits(x, "pandoc_ast"))
@@ -46,5 +57,3 @@ ast_md <- function(x, outfile = NULL) {
     )
   )
 }
-
-
