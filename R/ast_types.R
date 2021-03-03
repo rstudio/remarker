@@ -190,16 +190,14 @@ Element <- function(type, ...) {
       res <- list(t = type, c = content)
     }
 
-    # Assign class like "Block", "Inline"
-    class(res) <- type_info$category
-
   } else {
     # For element component types like Attr, they are just arrays; they don't
     # have t and c fields.
     res <- content
-    # Assign class like "Attr"
-    class(res) <- type_info$category
   }
+
+  # Assign class like "Block", "Inline", "Attr"
+  class(res) <- c(type_info$category, "Element")
 
   res
 }
@@ -242,7 +240,7 @@ as_Blocks <- function(x) {
     }
   }
 
-  class(x) <- "Blocks"
+  class(x) <- c("Blocks", "Element")
   x
 }
 
@@ -262,7 +260,7 @@ as_Blockss <- function(x) {
   for (i in seq_along(x)) {
     x[[i]] <- as_Blocks(x[[i]])
   }
-  class(x) <- "Blockss"
+  class(x) <- c("Blockss", "Element")
   x
 }
 
@@ -377,7 +375,7 @@ as_Inlines <- function(x) {
     }
   }
 
-  class(x) <- "Inlines"
+  class(x) <- c("Inlines", "Element")
   x
 }
 
@@ -399,7 +397,7 @@ as_Inliness <- function(inliness) {
     x[[i]] <- as_Inlines(x[[i]])
   }
 
-  class(x) <- "Inliness"
+  class(x) <- c("Inliness", "Element")
   x
 }
 
@@ -555,7 +553,7 @@ as_QuoteType <- function(quotetype) {
 
   add_class(
     list(t = quotetype),
-    "QuoteType"
+    c("QuoteType", "Element")
   )
 }
 

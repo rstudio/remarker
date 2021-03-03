@@ -10,9 +10,9 @@ cat0 <- function(...) {
   cat(..., sep = "")
 }
 
-
-print_element <- function(x, ..., indent = 0) {
-  classname <- class(x)
+#' @export
+print.Element <- function(x, ..., indent = 0) {
+  classname <- class(x)[1]
   cat0(sprintf("\n%s<%s>", indent_string(indent), classname))
 
   if (!is.null(x[["t"]])) {
@@ -52,25 +52,6 @@ print_element <- function(x, ..., indent = 0) {
   }
 }
 
-#' @export
-print.Blocks <- print_element
-
-#' @export
-print.Block <- print_element
-
-#' @export
-print.Inlines <- print_element
-
-#' @export
-print.Inline <- print_element
-
-#' @export
-print.Attr <- print_element
-
-#' @export
-print.QuoteType <- print_element
-
-
 # =====================================================================
 # Override some base S3 methods in the context of this package.
 # =====================================================================
@@ -83,4 +64,4 @@ print.integer <- print.character
 
 print.numeric <- print.character
 
-print.list <- print_element
+print.list <- print.Element
