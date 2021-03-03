@@ -10,6 +10,8 @@ md_ast(file = NULL, text = NULL, collapse_strings = TRUE, classify = TRUE)
 \item{file}{A filename. Cannot be used with \code{text}.}
 
 \item{text}{Markdown text. Cannot be used with \code{file}.}
+
+\item{classify}{Add classes}
 }
 \description{
 Read in Markdown content and return the Pandoc AST

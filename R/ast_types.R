@@ -15,22 +15,6 @@ Blockss <- function(...) {
   as_Blockss(x)
 }
 
-block_types <- c(
-  "BlockQuote",
-  "BulletList",
-  "CodeBlock",
-  "DefinitionList",
-  "Div",
-  "Header",
-  "HorizontalRule",
-  "LineBlock",
-  "Null",
-  "OrderedList",
-  "Para",
-  "Plain",
-  "RawBlock",
-  "Table"
-)
 
 #' @export
 as_Blocks <- function(x, classify_ = FALSE) {
@@ -48,47 +32,11 @@ as_Blocks <- function(x, classify_ = FALSE) {
   for (i in seq_along(x)) {
     if (classify_) {
       type <- x[[i]][["t"]]
-      if (type %in% block_types) {
+      if (type %in% names(Block_types)) {
         class(x[[i]]) <- "Block"
       } else {
         stop("Unknown block type: ", type)
       }
-
-      switch(type,
-        BlockQuote = {
-          x[[i]][["c"]] <- as_Blocks(x[[i]][["c"]])
-        },
-        BulletList = {
-          x[[i]][["c"]] <- as_Blocks(x[[i]][["c"]])
-        },
-        CodeBlock = {
-        },
-        DefinitionList = {
-        },
-        Div = {
-        },
-        Header = {
-        },
-        HorizontalRule = {
-        },
-        LineBlock = {
-        },
-        Null = {
-        },
-        OrderedList = {
-        },
-        Para = {
-        },
-        Plain = {
-        },
-        RawBlock = {
-        },
-        Table = {
-        },
-        {
-          stop("Unknown Block type: ", type)
-        }
-      )
 
     } else {
       if (!inherits(x[[i]], "Block")) {
@@ -122,36 +70,109 @@ as_Blockss <- function(x, classify_ = FALSE) {
 }
 
 
-#' @export
-Block <- function(type, content = NULL) {
-  if (is.null(content)) {
-    add_class(list(t = type), "Block")
+Block_types <- list(
+  BlockQuote = list(
+    types = "Blocks"
+  ),
+  BulletList = list(
+    types = "Blockss"
+  ),
+  CodeBlock = list(
+    types = c("Attr", "Text")
+  ),
+  DefinitionList = list(
+    # Not implemented yet
+    types = NULL
+  ),
+  Div = list(
+    types = c("Attr", "Blocks")
+  ),
+  Header = list(
+    types = c("Int", "Attr", "Inlines")
+  ),
+  HorizontalRule = list(
+    types = character(0)
+  ),
+  LineBlock = list(
+    types = "Inliness"
+  ),
+  Null = list(
+    types = character(0)
+  ),
+  OrderedList = list(
+    types = c("ListAttributes", "Blockss")
+  ),
+  Para = list(
+    types = "Inlines"
+  ),
+  Plain = list(
+    types = "Inlines"
+  ),
+  RawBlock = list(
+    types = c("Format", "Text")
+  ),
+  Table = list(
+    # Not implemented yet
+    types = NULL
+  )
+)
 
-  } else {
-    add_class(
-      list(t = type, c = content),
-      "Block"
-    )
+
+
+# TODO: auto-calculate coercion functions on load
+
+#' @export
+Block <- function(type, ...) {
+  types <- Block_types[[type]]$types
+  if (is.null(types)) {
+    stop("Unknown Block type: ", type)
   }
+
+  content <- list(...)
+  content_length <- length(content)
+
+  if (length(types) != content_length) {
+    stop("Defined number of items does not match length of ...")
+  }
+
+  for (i in seq_len(content_length)) {
+    # Construct a call like `as_Blocks(content[[i]])`
+    fn_name <- as.symbol(paste0("as_", types[[i]]))
+    call <- substitute(content[[i]] <- fn(content[[i]]), list(fn = fn_name))
+    eval(call)
+  }
+
+  # Unwrap if length 1
+  if (length(content) == 1) {
+    content <- content[[1]]
+  }
+
+  if (content_length == 0) {
+    res <- list(t = type)
+  } else if (length(content) == 1) {
+    # If length 1, unwrap the content
+    res <- list(t = type, c = content[[1]])
+  } else {
+    res <- list(t = type, c = content)
+  }
+
+  class(res) <- "Block"
+  res
 }
 
 #' @export
 BlockQuote <- function(content) {
-  content <- as_Blocks(content)
   Block("BlockQuote", content)
 }
 
 #' @export
 BulletList <- function(content) {
-  content <- as_Blocks(content)
   Block("BulletList", content)
 }
 
 #' @export
 CodeBlock <- function(text, attr = Attr()) {
-  stopifnot(is_string(text))
-  validate_attr(attr)
-  Block("CodeBlock", list(attr, text))
+  Block("CodeBlock", attr, text)
 }
 
 #' @export
@@ -161,17 +182,12 @@ DefinitionList <- function(content) {
 
 #' @export
 Div <- function(content, attr = Attr()) {
-  validate_attr(attr)
-  content <- as_Blocks(content)
-  Block("Div", list(attr, content))
+  Block("Div", attr, content)
 }
 
 #' @export
 Header <- function(level, content, attr = Attr()) {
-  stopifnot(is_numeric(level))
-  content <- as_Inlines(content)
-  validate_attr(attr)
-  Block("Header", list(level, attr, content))
+  Block("Header", level, attr, content)
 }
 
 #' @export
@@ -181,7 +197,6 @@ HorizontalRule <- function() {
 
 #' @export
 LineBlock <- function(content) {
-  content <- as_Inliness(content)
   Block("LineBlock", content)
 }
 
@@ -192,27 +207,22 @@ Null <- function() {
 
 #' @export
 OrderedList <- function(items, listAttributes) {
-  items <- as_Blocks(items)
-  Block("OrderedList", list(listAttributes, items))
+  Block("OrderedList", listAttributes, items)
 }
 
 #' @export
 Para <- function(content) {
-  content <- as_Inlines(content)
   Block("Para", content)
 }
 
 #' @export
 Plain <- function(content) {
-  content <- as_Inlines(content)
   Block("Plain", content)
 }
 
 #' @export
 RawBlock <- function(text, format) {
-  stopifnot(is_string(text))
-  stopifnot(is_string(format))
-  Block("RawBlock", list(format, text))
+  Block("RawBlock", format, text)
 }
 
 #' @export
@@ -241,30 +251,6 @@ Inliness <- function(...) {
 }
 
 
-inline_types <- c(
-  "Cite",
-  "Code",
-  "Emph",
-  "Image",
-  "LineBreak",
-  "Link",
-  "Math",
-  "Note",
-  "Quoted",
-  "RawInline",
-  "SmallCaps",
-  "SoftBreak",
-  "Space",
-  "Span",
-  "Str",
-  "Strikeout",
-  "Strong",
-  "Subscript",
-  "Superscript",
-  "Underline"
-)
-
-
 #' @export
 as_Inlines <- function(x, classify_ = FALSE) {
   if (inherits(x, "Inlines")) {
@@ -280,7 +266,7 @@ as_Inlines <- function(x, classify_ = FALSE) {
 
   for (i in seq_along(x)) {
     if (classify_) {
-      if (x[[i]][["t"]] %in% inline_types) {
+      if (x[[i]][["t"]] %in% names(Inline_types)) {
         class(x[[i]]) <- "Inline"
       } else {
         stop("Unknown inline type: ", x[[i]][["t"]])
@@ -319,43 +305,122 @@ as_Inliness <- function(inliness, classify_ = FALSE) {
   x
 }
 
+Inline_types <- list(
+  Cite = list(
+    types = c("Citations", "Inlines")
+  ),
+  Code = list(
+    types = c("Attr", "Text")
+  ),
+  Emph = list(
+    types = "Inlines"
+  ),
+  Image = list(
+    types = c("Attr", "Inlines", "Target")
+  ),
+  LineBreak = list(
+    types = character(0)
+  ),
+  Link = list(
+    types = c("Attr", "Inlines", "Target")
+  ),
+  Math = list(
+    types = c("MathType", "Text")
+  ),
+  Note = list(
+    types = "Blocks"
+  ),
+  Quoted = list(
+    types = c("QuoteType", "Inlines")
+  ),
+  RawInline = list(
+    types = c("Format", "Text")
+  ),
+  SmallCaps = list(
+    types = "Inlines"
+  ),
+  SoftBreak = list(
+    types = character(0)
+  ),
+  Space = list(
+    types = character(0)
+  ),
+  Span = list(
+    types = c("Attr", "Inlines")
+  ),
+  Str = list(
+    types = "Text"
+  ),
+  Strikeout = list(
+    types = "Inlines"
+  ),
+  Strong = list(
+    types = "Inlines"
+  ),
+  Subscript = list(
+    types = "Inlines"
+  )
+)
+
 
 #' @export
-Inline <- function(type, content = NULL) {
-  if (is.null(content)) {
-    add_class(list(t = type), "Inline")
-
-  } else {
-    add_class(
-      list(t = type, c = content),
-      "Inline"
-    )
+Inline <- function(type, ...) {
+  types <- Inline_types[[type]]$types
+  if (is.null(types)) {
+    stop("Unknown Inline type: ", type)
   }
+
+  content <- list(...)
+  content_length <- length(content)
+
+  if (length(types) != content_length) {
+    stop("Defined number of items does not match length of ...")
+  }
+
+  for (i in seq_len(content_length)) {
+    # Construct a call like `as_Inlines(content[[i]])`
+    fn_name <- as.symbol(paste0("as_", types[[i]]))
+    call <- substitute(content[[i]] <- fn(content[[i]]), list(fn = fn_name))
+    eval(call)
+  }
+
+  # Unwrap if length 1
+  if (length(content) == 1) {
+    content <- content[[1]]
+  }
+
+  if (content_length == 0) {
+    res <- list(t = type)
+  } else if (length(content) == 1) {
+    # If length 1, unwrap the content
+    res <- list(t = type, c = content[[1]])
+  } else {
+    res <- list(t = type, c = content)
+  }
+
+  class(res) <- "Inline"
+  res
 }
 
 #' @export
 Cite <- function(content, citations) {
-  content <- as_Inlines(content)
-  Inline("Cite", list(citations, content))
+  Inline("Cite", citations, content)
 }
 
 #' @export
 Code <- function(text, attr = Attr()) {
-  Inline("Code", list(attr, text))
+  Inline("Code", attr, text)
 }
 
 #' @export
 Emph <- function(content) {
-  content <- as_Inlines(content)
   Inline("Emph", content)
 }
 
 #' @export
 Image <- function(caption = list(), src, title = "", attr = Attr()) {
-  validate_attr(attr)
-  caption <- as_Inlines(caption)
 
-  Inline("Image", list(attr, caption, Target_(src, title)))
+  Inline("Image", attr, caption, Target(src, title))
 }
 
 #' @export
@@ -365,10 +430,7 @@ LineBreak <- function() {
 
 #' @export
 Link <- function(content, target, title = "", attr = Attr()) {
-  validate_attr(attr)
-  content <- as_Inlines(content)
-
-  Inline("Link", list(attr, content, Target_(target, title)))
+  Inline("Link", attr, content, Target(target, title))
 }
 
 #' @export
@@ -378,40 +440,21 @@ Math <- function(mathtype, text) {
 
 #' @export
 Note <- function(content) {
-  content <- as_Blocks(content)
   Inline("Note", content)
 }
 
 #' @export
 Quoted <- function(quotetype, content) {
-  content <- as_Inlines(content)
-  Inline("Quoted", list(QuoteType_(quotetype), content))
-}
-
-#' @export
-QuoteType_ <- function(quotetype) {
-  if (!is_string(quotetype) ||
-      !(quotetype == "SingleQuote" ||  quotetype == "DoubleQuote"))
-  {
-    stop('`quotetype` must be "SingleQuote" or "DoubleQuote".')
-  }
-
-  add_class(
-    list(t = quotetype),
-    "QuoteType"
-  )
+  Inline("Quoted", quotetype, content)
 }
 
 #' @export
 RawInline <- function(format, text) {
-  stopifnot(is_string(text))
-  stopifnot(is_string(format))
-  Inline("RawInline", list(format, text))
+  Inline("RawInline", format, text)
 }
 
 #' @export
 SmallCaps <- function(content) {
-  content <- as_Blocks(content)
   Inline("SmallCaps", content)
 }
 
@@ -427,45 +470,36 @@ Space <- function() {
 
 #' @export
 Span <- function(content, attr = Attr()) {
-  validate_attr(attr)
-  content <- as_Inlines(content)
-
-  Inline("Span", list(attr, content))
+  Inline("Span", attr, content)
 }
 
 #' @export
 Str <- function(text) {
-  stopifnot(is_string(text))
   Inline("Str", text)
 }
 
 #' @export
 Strikeout <- function(content) {
-  content <- as_Inlines(content)
   Inline("Strikeout", content)
 }
 
 #' @export
 Strong <- function(content) {
-  content <- as_Inlines(content)
   Inline("Strong", content)
 }
 
 #' @export
 Subscript <- function(content) {
-  content <- as_Inlines(content)
   Inline("Subscript", content)
 }
 
 #' @export
 Superscript <- function(content) {
-  content <- as_Inlines(content)
   Inline("Superscript", content)
 }
 
 #' @export
 Underline <- function(content) {
-  content <- as_Inlines(content)
   Inline("Underline", content)
 }
 
@@ -476,18 +510,10 @@ Underline <- function(content) {
 
 #' @export
 Attr <- function(identifier = "", classes = list(), attributes = list()) {
-  stopifnot(is_string(identifier))
-  # stopifnot(is_classes(classes))
-
-  if (!is.null(names(attributes))) {
-    attributes <- mapply(attributes, names(attributes),
-      FUN = function(value, name) {
-        list(name, value)
-      },
-      USE.NAMES = FALSE,
-      SIMPLIFY = FALSE
-    )
-  }
+  # TODO: generalize this code, like Blocks and Inlines
+  identifier <- as_Text(identifier)
+  classes    <- as_Texts(classes)
+  attributes <- as_Text_Texts(attributes)
 
   add_class(
     list(identifier, classes, attributes),
@@ -495,8 +521,22 @@ Attr <- function(identifier = "", classes = list(), attributes = list()) {
   )
 }
 
-validate_attr <- function(attr) {
-  stopifnot(inherits(attr, "Attr"))
+# Accepts as input:
+# * An Attr object
+# * NULL
+# * A list with 3 items which can be coerced to an Attr, by using do.call(Attr, x)
+as_Attr <- function(x) {
+  if (inherits(x, "Attr")) {
+    return(x)
+  }
+  if (is.null(x)) {
+    return(Attr())
+  }
+  if (is_unnamed_list(x) && length(x) == 3) {
+    return(do.call(Attr, x))
+  }
+
+  stop("`x` must be NULL or an unnamed list of length 3.")
 }
 
 Caption_ <- function(long = NULL, short = list()) {
@@ -513,6 +553,18 @@ validate_caption <- function(attr) {
   stopifnot(inherits(attr, "Caption"))
 }
 
+as_QuoteType <- function(quotetype) {
+  if (!is_string(quotetype) ||
+      !(quotetype == "SingleQuote" ||  quotetype == "DoubleQuote"))
+  {
+    stop('`quotetype` must be "SingleQuote" or "DoubleQuote".')
+  }
+
+  add_class(
+    list(t = quotetype),
+    "QuoteType"
+  )
+}
 
 
 ColSpec_ <- function(alignment = Alignment_(), colwidth = ColWidth_()) {
@@ -570,12 +622,90 @@ ListAttributes <- function(start, style, delimiter) {
   )
 }
 
-
-Target_ <- function(url, title) {
-  stopifnot(is_string(url))
-  stopifnot(is_string(title))
+Target <- function(url, title) {
   add_class(
     list(url, title),
     "Target"
   )
+}
+
+# Accepts:
+# 1. Target object
+# 2. unnamed list of length 2, where each element is a string
+as_Target <- function(x) {
+  if (inherits(x, "Target")) {
+    return(x)
+  }
+  if (is_unnamed_list(x) && length(x) == 2 &&
+      is_string(x[[1]]) && is_string(x[[2]]) )
+  {
+    return(add_class(x, "Target"))
+  }
+
+  stop("`x` cannot be coerced to a Target")
+}
+
+
+as_Int <- function(x) {
+  if (!is_numeric(x)) stop("x must be a number")
+  as.integer(x)
+}
+
+as_Text <- function(x) {
+  if (!is_string(x)) stop("x must be a string")
+  x
+}
+
+as_Format <- as_Text
+
+# Converts input to list of single strings
+# Input can be:
+# 1. NULL
+# 2. empty list
+# 3. character vector
+# 4. list of single strings (which is the output format)
+as_Texts <- function(x) {
+  if (length(x) == 0) {
+    return(list())
+  }
+  if (is.character(x)) {
+    return(as.list(x))
+  }
+  if (is_unnamed_list(x) && all(map_lgl(x, is_string))) {
+    return(x)
+  }
+
+  stop("`x` cannot be coerced to a list of strings")
+}
+
+# Input can be one of three forms:
+# 1. named character vector
+# 2. named list of single strings
+# 3. unnamed list of unnamed lists, each containing two strings (which is the output format)
+#
+# This function will convert the input to the form (3).
+as_Text_Texts <- function(x) {
+  # Check for (3)
+  if (is_unnamed_list(x)) {
+    results <- map_lgl(x, function(y) {
+      is_unnamed_list(y) && length(y) == 2 &&
+      is_string(y[[1]])  && is_string(y[[2]])
+    })
+    if (!all(results)) {
+      stop("`x` cannot be coerced to an unnamed list of unnamed lists, each with two strings")
+    }
+    return(x)
+  }
+
+  # Handles cases (1) and (2)
+  if (!is.null(names(x)) && (is.character(x) || is.list(x))) {
+    x <- mapply(x, names(x),
+      FUN = function(value, name) list(name, value),
+      USE.NAMES = FALSE,
+      SIMPLIFY = FALSE
+    )
+    return(x)
+  }
+
+  stop("`x` cannot be coerced to an unnamed list of unnamed lists, each with two strings")
 }

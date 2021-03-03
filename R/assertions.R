@@ -19,3 +19,7 @@ is_unnamed <- function(x) {
 is_unnamed_list <- function(x) {
   is.list(x) && is_unnamed(x)
 }
+
+is_classes <- function(x) {
+  is.list(x) && all(vapply(x, is_string, logical(1)))
+}

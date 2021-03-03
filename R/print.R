@@ -37,7 +37,6 @@ print.Block <- function(x, ..., indent = 0) {
       cat(indent_str, "  level: ", x[["c"]][[1]], "\n",
           indent_str, "  attr\n",
           sep = "")
-      browser()
       print(x[["c"]][[3]], indent = indent + 1)
     },
     HorizontalRule = {
