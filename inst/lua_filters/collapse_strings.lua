@@ -53,8 +53,7 @@ function collapse_strings (inlines)
       inlines:remove(i+1)
 
     elseif (inlines[i].t == "Space" and inlines[i+1].t == "Str") then
-      inlines[i].t = "Str"
-      inlines[i].c = " " .. inlines[i+1].c
+      inlines[i] = pandoc.Str(" " .. inlines[i+1].c)
       inlines:remove(i+1)
 
     elseif (inlines[i].t == "Str" and inlines[i+1].t == "Str") then
@@ -62,8 +61,7 @@ function collapse_strings (inlines)
       inlines:remove(i+1)
 
     elseif (inlines[i].t == "Space" and inlines[i+1].t == "Space") then
-      inlines[i].t = "Str"
-      inlines[i].c = "  "
+      inlines[i] = pandoc.Str("  ")
       inlines:remove(i+1)
     end
   end
