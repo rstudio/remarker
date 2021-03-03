@@ -2,7 +2,11 @@
 # classes. This function assumes that the input is well-formed (although without
 # classes).
 classify <- function(x, new_class = NULL) {
-  class(x) <- new_class
+  # Exceptions for Int and Text classes; don't assign them because they're
+  # just R numbers or strings.
+  if (! (new_class == "Int" || new_class == "Text") ) {
+    class(x) <- new_class
+  }
 
   switch(new_class,
     Blockss = {

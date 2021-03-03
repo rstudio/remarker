@@ -1,8 +1,20 @@
 
+# Number of spaces per level of indenting
+indent_step <- 3
+
+indent_string <- function(level) {
+  paste0(rep(" ", level * indent_step), collapse = "")
+}
+
+cat0 <- function(...) {
+  cat(..., sep = "")
+}
+
 #' @export
 print.Blocks <- function(x, ..., indent = 0) {
-  indent_str <- rep(" ", indent * 2)
-  cat(indent_str, "<Blocks>\n", sep = "")
+  classname <- class(x)
+  cat0(sprintf("\n%s<%s>", indent_string(indent), classname))
+
   for (y in x) {
     print(y, indent = indent + 1)
   }
@@ -10,156 +22,73 @@ print.Blocks <- function(x, ..., indent = 0) {
 
 #' @export
 print.Block <- function(x, ..., indent = 0) {
-  indent_str <- rep(" ", indent * 2)
+  classname <- class(x)
+  cat0(sprintf("\n%s<%s> t:%-7s", indent_string(indent), classname, x[["t"]]))
 
-  cat(indent_str, "<Block> t:", x[["t"]], sep = "")
+  content <- x[["c"]]
 
-  switch(x[["t"]],
-    BlockQuote = {
-      cat(" c:\n")
-      print(x[["c"]], indent = indent + 1)
-    },
-    BulletList = {
-      cat(" c:\n")
-      print(x[["c"]], indent = indent + 1)
-    },
-    CodeBlock = {
-      cat("\n")
-    },
-    DefinitionList = {
-      cat("\n")
-    },
-    Div = {
-      cat("\n")
-    },
-    Header = {
-      cat(" c:\n")
-      cat(indent_str, "  level: ", x[["c"]][[1]], "\n",
-          indent_str, "  attr\n",
-          sep = "")
-      print(x[["c"]][[3]], indent = indent + 1)
-    },
-    HorizontalRule = {
-      cat("\n")
-    },
-    LineBlock = {
-      cat(" c:\n")
-      print(x[["c"]], indent = indent + 1)
-    },
-    Null = {
-      cat("\n")
-    },
-    OrderedList = {
-      cat("\n")
-    },
-    Para = {
-      cat(" c:\n")
-      print(x[["c"]], indent = indent + 1)
-    },
-    Plain = {
-      cat(" c:\n")
-      print(x[["c"]], indent = indent + 1)
-    },
-    RawBlock = {
-      cat("\n")
-    },
-    Table = {
-      cat("\n")
-    },
-    {
-      stop("Unknown Block type: ", x[["t"]])
+  if (length(content) == 0) {
+    # Do nothing
+
+  } else if (length(content) == 1) {
+    cat("c:")
+    if (is.atomic(content)) {
+      # Special case for strings and numbers: keep on same line
+      cat0(crayon::blue(content))
+    } else {
+      print(content, indent = indent + 1)
     }
-  )
 
-}
-
-
-
-#' @export
-print.Inlines <- function(x, ..., indent = 0) {
-  indent_str <- rep(" ", indent * 2)
-  cat(indent_str, "<Inlines>\n", sep = "")
-  for (y in x) {
-    print(y, indent = indent + 1)
+  } else {
+    cat("c:")
+    for (i in content) {
+      print(i, indent = indent + 1)
+    }
   }
 }
 
+
 #' @export
-print.Inline <- function(x, ..., indent = 0) {
-  indent_str <- rep(" ", indent * 2)
+print.Inlines <- print.Blocks
 
-  cat(indent_str, "<Inline> t:", x[["t"]], sep = "")
+#' @export
+print.Inline <- print.Block
 
-  switch(x[["t"]],
-    Cite = {
-      cat("\n")
-    },
-    Code = {
-      # TODO: attr
-      cat(' c:"', x[["c"]][[2]], '"\n', sep = "")
-    },
-    Emph = {
-      cat(" c:\n")
-      print(x[["c"]], indent = indent + 1)
-    },
-    Image = {
-      cat("\n")
-    },
-    LineBreak = {
-      cat("\n")
-    },
-    Link = {
-      cat("\n")
-    },
-    Math = {
-      cat("\n")
-    },
-    Note = {
-      cat("\n")
-    },
-    Quoted = {
-      cat("\n")
-    },
-    RawInline = {
-      cat("\n")
-    },
-    SmallCaps = {
-      cat("\n")
-    },
-    SoftBreak = {
-      cat("\n")
-    },
-    Space = {
-      cat("\n")
-    },
-    Span = {
-      cat("\n")
-    },
-    Str = {
-      cat(' c:"', x[["c"]], '"\n', sep = "")
-    },
-    Strikeout = {
-      cat("\n")
-    },
-    Strong = {
-      cat(" c:\n")
-      print(x[["c"]], indent = indent + 1)
-    },
-    Subscript = {
-      cat(" c:\n")
-      print(x[["c"]], indent = indent + 1)
-    },
-    Superscript = {
-      cat(" c:\n")
-      print(x[["c"]], indent = indent + 1)
-    },
-    Underline = {
-      cat(" c:\n")
-      print(x[["c"]], indent = indent + 1)
-    },
-    {
-      stop("Unknown Inline type: ", x[["t"]])
-    }
-  )
 
+#' @export
+print.QuoteType <- function(x, ..., indent = 0) {
+  cat0("\n", indent_string(indent), "<QuoteType> t:", x[["t"]])
 }
+
+
+#' @export
+print.Attr <- function(x, ..., indent = 0) {
+  indent_str <- rep(" ", indent * 2)
+  cat0("\n", indent_string(indent), "<Attr>:")
+}
+
+
+print.QuoteType <- function(x, ..., indent = 0) {
+  classname <- class(x)
+  cat0(sprintf("\n%s<%s>", indent_string(indent), classname))
+
+  if (!is.null(x[["t"]])) {
+    cat0(sprintf(" t:%-7s", x[["t"]]))
+
+  } else if (is_unnamed(x)) {
+    for (i in x) {
+      print(i, indent = indent + 1)
+    }
+  }
+}
+
+print.Attr <- print.QuoteType
+
+
+# Override some base S3 methods in the context of this package.
+
+print.character <- function(x, ..., indent = 0) {
+  cat0("\n", indent_string(indent), crayon::blue(x))
+}
+
+print.integer <- print.character
