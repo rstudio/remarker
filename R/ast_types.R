@@ -215,6 +215,11 @@ ast_types <- list(
   Attr = list(
     category = "Attr",
     children = c("Text", "Texts", "Text_Texts")
+  ),
+
+  Target = list(
+    category = "Target",
+    children = c("Text", "Text")
   )
 )
 
@@ -630,10 +635,7 @@ ListAttributes <- function(start, style, delimiter) {
 }
 
 Target <- function(url, title) {
-  add_class(
-    list(url, title),
-    "Target"
-  )
+  Element("Target", url, title)
 }
 
 # Accepts:
