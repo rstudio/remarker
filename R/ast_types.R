@@ -70,50 +70,143 @@ as_Blockss <- function(x, classify_ = FALSE) {
 }
 
 
-Block_types <- list(
+ast_types <- list(
+  # ============================================================================
+  # Block elements
+  # ============================================================================
   BlockQuote = list(
-    types = "Blocks"
+    category = "Block",
+    children = "Blocks"
   ),
   BulletList = list(
-    types = "Blockss"
+    category = "Block",
+    children = "Blockss"
   ),
   CodeBlock = list(
-    types = c("Attr", "Text")
+    category = "Block",
+    children = c("Attr", "Text")
   ),
   DefinitionList = list(
     # Not implemented yet
-    types = NULL
+    category = "Block",
+    children = NULL
   ),
   Div = list(
-    types = c("Attr", "Blocks")
+    category = "Block",
+    children = c("Attr", "Blocks")
   ),
   Header = list(
-    types = c("Int", "Attr", "Inlines")
+    category = "Block",
+    children = c("Int", "Attr", "Inlines")
   ),
   HorizontalRule = list(
-    types = character(0)
+    category = "Block",
+    children = character(0)
   ),
   LineBlock = list(
-    types = "Inliness"
+    category = "Block",
+    children = "Inliness"
   ),
   Null = list(
-    types = character(0)
+    category = "Block",
+    children = character(0)
   ),
   OrderedList = list(
-    types = c("ListAttributes", "Blockss")
+    category = "Block",
+    children = c("ListAttributes", "Blockss")
   ),
   Para = list(
-    types = "Inlines"
+    category = "Block",
+    children = "Inlines"
   ),
   Plain = list(
-    types = "Inlines"
+    category = "Block",
+    children = "Inlines"
   ),
   RawBlock = list(
-    types = c("Format", "Text")
+    category = "Block",
+    children = c("Format", "Text")
   ),
   Table = list(
     # Not implemented yet
-    types = NULL
+    category = "Block",
+    children = NULL
+  ),
+
+  # ============================================================================
+  # Inline elements
+  # ============================================================================
+  Cite = list(
+    category = "Inline",
+    children = c("Citations", "Inlines")
+  ),
+  Code = list(
+    category = "Inline",
+    children = c("Attr", "Text")
+  ),
+  Emph = list(
+    category = "Inline",
+    children = "Inlines"
+  ),
+  Image = list(
+    category = "Inline",
+    children = c("Attr", "Inlines", "Target")
+  ),
+  LineBreak = list(
+    category = "Inline",
+    children = character(0)
+  ),
+  Link = list(
+    category = "Inline",
+    children = c("Attr", "Inlines", "Target")
+  ),
+  Math = list(
+    category = "Inline",
+    children = c("MathType", "Text")
+  ),
+  Note = list(
+    category = "Inline",
+    children = "Blocks"
+  ),
+  Quoted = list(
+    category = "Inline",
+    children = c("QuoteType", "Inlines")
+  ),
+  RawInline = list(
+    category = "Inline",
+    children = c("Format", "Text")
+  ),
+  SmallCaps = list(
+    category = "Inline",
+    children = "Inlines"
+  ),
+  SoftBreak = list(
+    category = "Inline",
+    children = character(0)
+  ),
+  Space = list(
+    category = "Inline",
+    children = character(0)
+  ),
+  Span = list(
+    category = "Inline",
+    children = c("Attr", "Inlines")
+  ),
+  Str = list(
+    category = "Inline",
+    children = "Text"
+  ),
+  Strikeout = list(
+    category = "Inline",
+    children = "Inlines"
+  ),
+  Strong = list(
+    category = "Inline",
+    children = "Inlines"
+  ),
+  Subscript = list(
+    category = "Inline",
+    children = "Inlines"
   )
 )
 
@@ -122,57 +215,18 @@ Block_types <- list(
 # TODO: auto-calculate coercion functions on load
 
 #' @export
-Block <- function(type, ...) {
-  types <- Block_types[[type]]$types
-  if (is.null(types)) {
-    stop("Unknown Block type: ", type)
-  }
-
-  content <- list(...)
-  content_length <- length(content)
-
-  if (length(types) != content_length) {
-    stop("Defined number of items does not match length of ...")
-  }
-
-  for (i in seq_len(content_length)) {
-    # Construct a call like `as_Blocks(content[[i]])`
-    fn_name <- as.symbol(paste0("as_", types[[i]]))
-    call <- substitute(content[[i]] <- fn(content[[i]]), list(fn = fn_name))
-    eval(call)
-  }
-
-  # Unwrap if length 1
-  if (length(content) == 1) {
-    content <- content[[1]]
-  }
-
-  if (content_length == 0) {
-    res <- list(t = type)
-  } else if (length(content) == 1) {
-    # If length 1, unwrap the content
-    res <- list(t = type, c = content[[1]])
-  } else {
-    res <- list(t = type, c = content)
-  }
-
-  class(res) <- "Block"
-  res
-}
-
-#' @export
 BlockQuote <- function(content) {
-  Block("BlockQuote", content)
+  Element("BlockQuote", content)
 }
 
 #' @export
 BulletList <- function(content) {
-  Block("BulletList", content)
+  Element("BulletList", content)
 }
 
 #' @export
 CodeBlock <- function(text, attr = Attr()) {
-  Block("CodeBlock", attr, text)
+  Element("CodeBlock", attr, text)
 }
 
 #' @export
@@ -182,47 +236,47 @@ DefinitionList <- function(content) {
 
 #' @export
 Div <- function(content, attr = Attr()) {
-  Block("Div", attr, content)
+  Element("Div", attr, content)
 }
 
 #' @export
 Header <- function(level, content, attr = Attr()) {
-  Block("Header", level, attr, content)
+  Element("Header", level, attr, content)
 }
 
 #' @export
 HorizontalRule <- function() {
-  Block("HorizontalRule")
+  Element("HorizontalRule")
 }
 
 #' @export
 LineBlock <- function(content) {
-  Block("LineBlock", content)
+  Element("LineBlock", content)
 }
 
 #' @export
 Null <- function() {
-  Block("Null")
+  Element("Null")
 }
 
 #' @export
 OrderedList <- function(items, listAttributes) {
-  Block("OrderedList", listAttributes, items)
+  Element("OrderedList", listAttributes, items)
 }
 
 #' @export
 Para <- function(content) {
-  Block("Para", content)
+  Element("Para", content)
 }
 
 #' @export
 Plain <- function(content) {
-  Block("Plain", content)
+  Element("Plain", content)
 }
 
 #' @export
 RawBlock <- function(text, format) {
-  Block("RawBlock", format, text)
+  Element("RawBlock", format, text)
 }
 
 #' @export
@@ -305,132 +359,85 @@ as_Inliness <- function(inliness, classify_ = FALSE) {
   x
 }
 
-Inline_types <- list(
-  Cite = list(
-    types = c("Citations", "Inlines")
-  ),
-  Code = list(
-    types = c("Attr", "Text")
-  ),
-  Emph = list(
-    types = "Inlines"
-  ),
-  Image = list(
-    types = c("Attr", "Inlines", "Target")
-  ),
-  LineBreak = list(
-    types = character(0)
-  ),
-  Link = list(
-    types = c("Attr", "Inlines", "Target")
-  ),
-  Math = list(
-    types = c("MathType", "Text")
-  ),
-  Note = list(
-    types = "Blocks"
-  ),
-  Quoted = list(
-    types = c("QuoteType", "Inlines")
-  ),
-  RawInline = list(
-    types = c("Format", "Text")
-  ),
-  SmallCaps = list(
-    types = "Inlines"
-  ),
-  SoftBreak = list(
-    types = character(0)
-  ),
-  Space = list(
-    types = character(0)
-  ),
-  Span = list(
-    types = c("Attr", "Inlines")
-  ),
-  Str = list(
-    types = "Text"
-  ),
-  Strikeout = list(
-    types = "Inlines"
-  ),
-  Strong = list(
-    types = "Inlines"
-  ),
-  Subscript = list(
-    types = "Inlines"
-  )
-)
-
 
 #' @export
-Inline <- function(type, ...) {
-  types <- Inline_types[[type]]$types
-  if (is.null(types)) {
-    stop("Unknown Inline type: ", type)
+Element <- function(type, ...) {
+  type_info <- ast_types[[type]]
+  if (is.null(type_info)) {
+    stop("Unknown AST type: ", type)
   }
+
+  child_types <- type_info$children
 
   content <- list(...)
   content_length <- length(content)
 
-  if (length(types) != content_length) {
+  if (length(child_types) != content_length) {
     stop("Defined number of items does not match length of ...")
   }
 
   for (i in seq_len(content_length)) {
-    # Construct a call like `as_Inlines(content[[i]])`
-    fn_name <- as.symbol(paste0("as_", types[[i]]))
-    call <- substitute(content[[i]] <- fn(content[[i]]), list(fn = fn_name))
-    eval(call)
+    # Construct an expression like `content[[i]] <- as_Inlines(content[[i]])`
+    fn_name <- as.symbol(paste0("as_", child_types[[i]]))
+    expr <- substitute(content[[i]] <- fn(content[[i]]), list(fn = fn_name))
+    eval(expr)
   }
 
-  # Unwrap if length 1
-  if (length(content) == 1) {
-    content <- content[[1]]
-  }
 
-  if (content_length == 0) {
-    res <- list(t = type)
-  } else if (length(content) == 1) {
-    # If length 1, unwrap the content
-    res <- list(t = type, c = content[[1]])
+  if (type_info$category == "Block" || type_info$category == "Inline") {
+    if (content_length == 0) {
+      res <- list(t = type)
+    } else if (length(content) == 1) {
+      # If length 1, unwrap the content
+      res <- list(t = type, c = content[[1]])
+    } else {
+      res <- list(t = type, c = content)
+    }
+
+    # Assign class like "Block", "Inline"
+    class(res) <- type_info$category
+
   } else {
-    res <- list(t = type, c = content)
+    # For element component types like Attr, they are just arrays; they don't
+    # have t and c fields.
+    res <- content
+    # Assign class like "Attr"
+    class(res) <- type_info$category
   }
 
-  class(res) <- "Inline"
   res
 }
 
+
 #' @export
 Cite <- function(content, citations) {
-  Inline("Cite", citations, content)
+  Element("Cite", citations, content)
 }
 
 #' @export
 Code <- function(text, attr = Attr()) {
-  Inline("Code", attr, text)
+  Element("Code", attr, text)
 }
 
 #' @export
 Emph <- function(content) {
-  Inline("Emph", content)
+  Element("Emph", content)
 }
 
 #' @export
 Image <- function(caption = list(), src, title = "", attr = Attr()) {
 
-  Inline("Image", attr, caption, Target(src, title))
+  Element("Image", attr, caption, Target(src, title))
 }
 
 #' @export
 LineBreak <- function() {
-  Inline("LineBreak")
+  Element("LineBreak")
 }
 
 #' @export
 Link <- function(content, target, title = "", attr = Attr()) {
-  Inline("Link", attr, content, Target(target, title))
+  Element("Link", attr, content, Target(target, title))
 }
 
 #' @export
@@ -440,67 +447,67 @@ Math <- function(mathtype, text) {
 
 #' @export
 Note <- function(content) {
-  Inline("Note", content)
+  Element("Note", content)
 }
 
 #' @export
 Quoted <- function(quotetype, content) {
-  Inline("Quoted", quotetype, content)
+  Element("Quoted", quotetype, content)
 }
 
 #' @export
 RawInline <- function(format, text) {
-  Inline("RawInline", format, text)
+  Element("RawInline", format, text)
 }
 
 #' @export
 SmallCaps <- function(content) {
-  Inline("SmallCaps", content)
+  Element("SmallCaps", content)
 }
 
 #' @export
 SoftBreak <- function() {
-  Inline("SoftBreak")
+  Element("SoftBreak")
 }
 
 #' @export
 Space <- function() {
-  Inline("Space")
+  Element("Space")
 }
 
 #' @export
 Span <- function(content, attr = Attr()) {
-  Inline("Span", attr, content)
+  Element("Span", attr, content)
 }
 
 #' @export
 Str <- function(text) {
-  Inline("Str", text)
+  Element("Str", text)
 }
 
 #' @export
 Strikeout <- function(content) {
-  Inline("Strikeout", content)
+  Element("Strikeout", content)
 }
 
 #' @export
 Strong <- function(content) {
-  Inline("Strong", content)
+  Element("Strong", content)
 }
 
 #' @export
 Subscript <- function(content) {
-  Inline("Subscript", content)
+  Element("Subscript", content)
 }
 
 #' @export
 Superscript <- function(content) {
-  Inline("Superscript", content)
+  Element("Superscript", content)
 }
 
 #' @export
 Underline <- function(content) {
-  Inline("Underline", content)
+  Element("Underline", content)
 }
 
 
