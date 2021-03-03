@@ -4,7 +4,7 @@
 \name{remarker-package}
 \alias{remarker}
 \alias{remarker-package}
-\title{remarker: Translate Markdown to R data structures.}
+\title{remarker: Translate Markdown to R data structures}
 \description{
 What the package does (one paragraph).
 }

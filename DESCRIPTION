@@ -1,5 +1,5 @@
 Package: remarker
-Title: Translate Markdown to R data structures.
+Title: Translate Markdown to R data structures
 Version: 0.0.0.9000
 Authors@R:
     person("Winston", "Chang", role = c("aut", "cre"),
