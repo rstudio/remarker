@@ -1,79 +1,11 @@
-
-# =====================================================================
-# Block components
-# =====================================================================
-
-#' @export
-Blocks <- function(...) {
-  x <- list(...)
-  as_Blocks(x)
-}
-
-#' @export
-Blockss <- function(...) {
-  x <- list(...)
-  as_Blockss(x)
-}
-
-
-#' @export
-as_Blocks <- function(x, classify_ = FALSE) {
-  if (inherits(x, "Blocks")) {
-    return(x)
-  }
-
-  if (is.null(x)) {
-    x <- list()
-  }
-  if (!is_unnamed_list(x)) {
-    stop("`x` must be NULL or an unnamed list")
-  }
-
-  for (i in seq_along(x)) {
-    if (classify_) {
-      type <- x[[i]][["t"]]
-      if (type %in% names(Block_types)) {
-        class(x[[i]]) <- "Block"
-      } else {
-        stop("Unknown block type: ", type)
-      }
-
-    } else {
-      if (!inherits(x[[i]], "Block")) {
-        stop('All elements in `x` must have class "Block".')
-      }
-    }
-  }
-
-  class(x) <- "Blocks"
-  x
-}
-
-#' @export
-as_Blockss <- function(x, classify_ = FALSE) {
-  if (inherits(x, "Blockss")) {
-    return(x)
-  }
-  if (is.null(x)) {
-    x <- list()
-  }
-  if (!is_unnamed_list(x)) {
-    stop("`x` must be NULL or an unnamed list")
-  }
-
-  # Slightly better error messages than lapply(); should be as fast or faster.
-  for (i in seq_along(x)) {
-    x[[i]] <- as_Blocks(x[[i]], classify_ = classify_)
-  }
-  class(x) <- "Blockss"
-  x
-}
-
+# ======================================================================
+# AST type definitions
+# ======================================================================
 
 ast_types <- list(
-  # ============================================================================
+  # ====================================================================
   # Block elements
-  # ============================================================================
+  # ====================================================================
   BlockQuote = list(
     category = "Block",
     children = "Blocks"
@@ -133,9 +65,9 @@ ast_types <- list(
     children = NULL
   ),
 
-  # ============================================================================
+  # ====================================================================
   # Inline elements
-  # ============================================================================
+  # ====================================================================
   Cite = list(
     category = "Inline",
     children = c("Citations", "Inlines")
@@ -209,9 +141,9 @@ ast_types <- list(
     children = "Inlines"
   ),
 
-  # ============================================================================
+  # =====================================================================
   # Element components
-  # ============================================================================
+  # =====================================================================
   Attr = list(
     category = "Attr",
     children = c("Text", "Texts", "Text_Texts")
@@ -224,8 +156,126 @@ ast_types <- list(
 )
 
 
+#' @export
+Element <- function(type, ...) {
+  type_info <- ast_types[[type]]
+  if (is.null(type_info)) {
+    stop("Unknown AST type: ", type)
+  }
 
-# TODO: auto-calculate coercion functions on load
+  child_types <- type_info$children
+
+  content <- list(...)
+  content_length <- length(content)
+
+  if (length(child_types) != content_length) {
+    stop("Defined number of items does not match length of ...")
+  }
+
+  for (i in seq_len(content_length)) {
+    # Construct an expression like `content[[i]] <- as_Inlines(content[[i]])`
+    fn_name <- as.symbol(paste0("as_", child_types[[i]]))
+    expr <- substitute(content[[i]] <- fn(content[[i]]), list(fn = fn_name))
+    eval(expr)
+  }
+
+
+  if (type_info$category == "Block" || type_info$category == "Inline") {
+    if (content_length == 0) {
+      res <- list(t = type)
+    } else if (length(content) == 1) {
+      # If length 1, unwrap the content
+      res <- list(t = type, c = content[[1]])
+    } else {
+      res <- list(t = type, c = content)
+    }
+
+    # Assign class like "Block", "Inline"
+    class(res) <- type_info$category
+
+  } else {
+    # For element component types like Attr, they are just arrays; they don't
+    # have t and c fields.
+    res <- content
+    # Assign class like "Attr"
+    class(res) <- type_info$category
+  }
+
+  res
+}
+
+
+
+# =====================================================================
+# Block components
+# =====================================================================
+
+#' @export
+Blocks <- function(...) {
+  x <- list(...)
+  as_Blocks(x)
+}
+
+#' @export
+Blockss <- function(...) {
+  x <- list(...)
+  as_Blockss(x)
+}
+
+
+#' @export
+as_Blocks <- function(x, classify_ = FALSE) {
+  if (inherits(x, "Blocks")) {
+    return(x)
+  }
+
+  if (is.null(x)) {
+    x <- list()
+  }
+  if (!is_unnamed_list(x)) {
+    stop("`x` must be NULL or an unnamed list")
+  }
+
+  for (i in seq_along(x)) {
+    if (classify_) {
+      type <- x[[i]][["t"]]
+      if (type %in% names(Block_types)) {
+        class(x[[i]]) <- "Block"
+      } else {
+        stop("Unknown block type: ", type)
+      }
+
+    } else {
+      if (!inherits(x[[i]], "Block")) {
+        stop('All elements in `x` must have class "Block".')
+      }
+    }
+  }
+
+  class(x) <- "Blocks"
+  x
+}
+
+#' @export
+as_Blockss <- function(x, classify_ = FALSE) {
+  if (inherits(x, "Blockss")) {
+    return(x)
+  }
+  if (is.null(x)) {
+    x <- list()
+  }
+  if (!is_unnamed_list(x)) {
+    stop("`x` must be NULL or an unnamed list")
+  }
+
+  # Slightly better error messages than lapply(); should be as fast or faster.
+  for (i in seq_along(x)) {
+    x[[i]] <- as_Blocks(x[[i]], classify_ = classify_)
+  }
+  class(x) <- "Blockss"
+  x
+}
+
 
 #' @export
 BlockQuote <- function(content) {
@@ -374,55 +424,6 @@ as_Inliness <- function(inliness, classify_ = FALSE) {
 
 
 #' @export
-Element <- function(type, ...) {
-  type_info <- ast_types[[type]]
-  if (is.null(type_info)) {
-    stop("Unknown AST type: ", type)
-  }
-
-  child_types <- type_info$children
-
-  content <- list(...)
-  content_length <- length(content)
-
-  if (length(child_types) != content_length) {
-    stop("Defined number of items does not match length of ...")
-  }
-
-  for (i in seq_len(content_length)) {
-    # Construct an expression like `content[[i]] <- as_Inlines(content[[i]])`
-    fn_name <- as.symbol(paste0("as_", child_types[[i]]))
-    expr <- substitute(content[[i]] <- fn(content[[i]]), list(fn = fn_name))
-    eval(expr)
-  }
-
-
-  if (type_info$category == "Block" || type_info$category == "Inline") {
-    if (content_length == 0) {
-      res <- list(t = type)
-    } else if (length(content) == 1) {
-      # If length 1, unwrap the content
-      res <- list(t = type, c = content[[1]])
-    } else {
-      res <- list(t = type, c = content)
-    }
-
-    # Assign class like "Block", "Inline"
-    class(res) <- type_info$category
-
-  } else {
-    # For element component types like Attr, they are just arrays; they don't
-    # have t and c fields.
-    res <- content
-    # Assign class like "Attr"
-    class(res) <- type_info$category
-  }
-
-  res
-}
-
-
-#' @export
 Cite <- function(content, citations) {
   Element("Cite", citations, content)
 }
@@ -439,7 +440,6 @@ Emph <- function(content) {
 
 #' @export
 Image <- function(caption = list(), src, title = "", attr = Attr()) {
-
   Element("Image", attr, caption, Target(src, title))
 }
 
