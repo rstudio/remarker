@@ -1,14 +1,22 @@
 
 indent_string <- function(branches) {
+  if (length(branches) == 0) {
+    return("")
+  }
+
   res <- character(length(branches))
 
-  res[branches == "TRUE" ]       <- "│  "
+  # Vertical bar (like "|" but taller)
+  res[branches == "TRUE" ]       <- "\U2502  "
   res[branches == "FALSE"]       <- "   "
-  if (length(branches) && branches[length(branches)] == "TRUE") {
-    res[length(branches)] <- "├──"
+
+  if (branches[length(branches)] == "TRUE") {
+    # Vertical bar with line right (sort of like "|-")
+    res[length(branches)] <- "\U251c──"
   }
-  res[branches == "LAST_CHILD" ] <- "└──"
-  paste(res, collapse = "")
+  # Lines up, right (sort of like a bottom left corner)
+  res[branches == "LAST_CHILD" ] <- "\U2514──"
+  crayon::silver(paste(res, collapse = ""))
 }
 
 cat0 <- function(...) {
@@ -18,7 +26,7 @@ cat0 <- function(...) {
 #' @export
 print.Element <- function(x, ..., branches = character(0)) {
   classname <- class(x)[1]
-  cat0(sprintf("\n%s<%s>", indent_string(branches), classname))
+  cat0("\n", indent_string(branches), crayon::silver("<", classname, ">", sep = ""))
 
   # If this is the last child, then for any children, the shouldn't be a branch
   # at this level.
@@ -28,7 +36,7 @@ print.Element <- function(x, ..., branches = character(0)) {
 
   if (!is.null(x[["t"]])) {
     # Handle Block and Inline elements
-    cat0(sprintf(" t:%-7s", x[["t"]]))
+    cat0(sprintf(" t:%s  ", crayon::magenta(x[["t"]])))
 
     content <- x[["c"]]
 
@@ -39,7 +47,7 @@ print.Element <- function(x, ..., branches = character(0)) {
       cat("c:")
       if (is.atomic(content)) {
         # Special case for strings and numbers: keep on same line
-        cat0(crayon::blue(content))
+        cat0(crayon::green('"', escape_str(content), '"', sep = ""))
       } else {
         print(content, branches = c(branches, "LAST_CHILD"))
       }
@@ -68,11 +76,21 @@ print.Element <- function(x, ..., branches = character(0)) {
 # =====================================================================
 
 print.character <- function(x, ..., branches = character(0)) {
-  cat0("\n", indent_string(branches), crayon::blue(x))
+  cat0(
+    "\n", indent_string(branches),
+     crayon::green('"', escape_str(x), '"', sep = "")
+  )
 }
 
-print.integer <- print.character
+print.integer <- function(x, ..., branches = character(0)) {
+  cat0("\n", indent_string(branches), crayon::green(x))
+}
 
 print.numeric <- print.character
 
 print.list <- print.Element
+
+
+escape_str <- function(x) {
+  sub('"', '\\"', x, fixed = TRUE)
+}
