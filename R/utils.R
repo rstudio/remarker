@@ -1,3 +1,8 @@
+unclass_recursive <- function(x) {
+  x <- unclass(x)
+  if (is.list(x)) lapply(x, unclass_recursive)
+  else            x
+}
 
 
 named_list_val <- list(a = 1)[0]

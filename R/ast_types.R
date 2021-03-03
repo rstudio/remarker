@@ -47,11 +47,48 @@ as_Blocks <- function(x, classify_ = FALSE) {
 
   for (i in seq_along(x)) {
     if (classify_) {
-      if (x[[i]][["t"]] %in% block_types) {
+      type <- x[[i]][["t"]]
+      if (type %in% block_types) {
         class(x[[i]]) <- "Block"
       } else {
-        stop("Unknown block type: ", x[[i]][["t"]])
+        stop("Unknown block type: ", type)
       }
+
+      switch(type,
+        BlockQuote = {
+          x[[i]][["c"]] <- as_Blocks(x[[i]][["c"]])
+        },
+        BulletList = {
+          x[[i]][["c"]] <- as_Blocks(x[[i]][["c"]])
+        },
+        CodeBlock = {
+        },
+        DefinitionList = {
+        },
+        Div = {
+        },
+        Header = {
+        },
+        HorizontalRule = {
+        },
+        LineBlock = {
+        },
+        Null = {
+        },
+        OrderedList = {
+        },
+        Para = {
+        },
+        Plain = {
+        },
+        RawBlock = {
+        },
+        Table = {
+        },
+        {
+          stop("Unknown Block type: ", type)
+        }
+      )
 
     } else {
       if (!inherits(x[[i]], "Block")) {

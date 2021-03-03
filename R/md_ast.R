@@ -10,6 +10,7 @@ pandoc_markdown_format <- paste0(
 #'
 #' @param file A filename. Cannot be used with `text`.
 #' @param text Markdown text. Cannot be used with `file`.
+#' @param classify Add classes
 #' @export
 md_ast <- function(file = NULL, text = NULL, collapse_strings = TRUE, classify = TRUE) {
   if (!xor(is.null(file), is.null(text))) {
@@ -41,10 +42,10 @@ md_ast <- function(file = NULL, text = NULL, collapse_strings = TRUE, classify =
 #' @export
 ast_md <- function(x, outfile = NULL) {
   stopifnot(inherits(x, "pandoc_ast"))
-  stopifnot(is.character(outfile))
+  stopifnot(is.null(outfile) || is_string(outfile))
 
   tmpfile_json <- tempfile()
-  json <- jsonlite::toJSON(unclass(x), auto_unbox = TRUE)
+  json <- jsonlite::toJSON(unclass_recursive(x), auto_unbox = TRUE)
   writeLines(json, tmpfile_json)
   system2(
     "pandoc",
