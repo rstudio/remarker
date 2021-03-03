@@ -207,6 +207,14 @@ ast_types <- list(
   Subscript = list(
     category = "Inline",
     children = "Inlines"
+  ),
+
+  # ============================================================================
+  # Element components
+  # ============================================================================
+  Attr = list(
+    category = "Attr",
+    children = c("Text", "Texts", "Text_Texts")
   )
 )
 
@@ -517,15 +525,7 @@ Underline <- function(content) {
 
 #' @export
 Attr <- function(identifier = "", classes = list(), attributes = list()) {
-  # TODO: generalize this code, like Blocks and Inlines
-  identifier <- as_Text(identifier)
-  classes    <- as_Texts(classes)
-  attributes <- as_Text_Texts(attributes)
-
-  add_class(
-    list(identifier, classes, attributes),
-    "Attr"
-  )
+  Element("Attr", identifier, classes, attributes)
 }
 
 # Accepts as input:
