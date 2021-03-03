@@ -231,6 +231,9 @@ as_Blocks <- function(x) {
     x <- list()
   }
   if (!is_unnamed_list(x)) {
+    if (inherits(x, "Block")) {
+      stop("`x` is a Block object. Did you mean to wrap it with `Blocks()`?")
+    }
     stop("`x` must be NULL or an unnamed list")
   }
 
@@ -366,6 +369,9 @@ as_Inlines <- function(x) {
     x <- list()
   }
   if (!is_unnamed_list(x)) {
+    if (inherits(x, "Inline")) {
+      stop("`x` is an Inline object. Did you mean to wrap it with `Inlines()`?")
+    }
     stop("`x` must be NULL or an unnamed list")
   }
 
