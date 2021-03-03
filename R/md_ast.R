@@ -30,7 +30,7 @@ md_ast <- function(file = NULL, text = NULL, collapse_strings = TRUE, classify =
 
   ast <- jsonlite::fromJSON(json, simplifyDataFrame = FALSE, simplifyVector = FALSE)
   if (classify) {
-    ast$blocks <- as_Blocks(ast$blocks, classify_ = TRUE)
+    ast$blocks <- classify(ast$blocks, "Blocks")
   }
   add_class(ast,  "pandoc_ast")
 }

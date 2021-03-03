@@ -224,7 +224,7 @@ Blockss <- function(...) {
 
 
 #' @export
-as_Blocks <- function(x, classify_ = FALSE) {
+as_Blocks <- function(x) {
   if (inherits(x, "Blocks")) {
     return(x)
   }
@@ -237,18 +237,8 @@ as_Blocks <- function(x, classify_ = FALSE) {
   }
 
   for (i in seq_along(x)) {
-    if (classify_) {
-      type <- x[[i]][["t"]]
-      if (type %in% names(Block_types)) {
-        class(x[[i]]) <- "Block"
-      } else {
-        stop("Unknown block type: ", type)
-      }
-
-    } else {
-      if (!inherits(x[[i]], "Block")) {
-        stop('All elements in `x` must have class "Block".')
-      }
+    if (!inherits(x[[i]], "Block")) {
+      stop('All elements in `x` must have class "Block".')
     }
   }
 
@@ -257,7 +247,7 @@ as_Blocks <- function(x, classify_ = FALSE) {
 }
 
 #' @export
-as_Blockss <- function(x, classify_ = FALSE) {
+as_Blockss <- function(x) {
   if (inherits(x, "Blockss")) {
     return(x)
   }
@@ -270,7 +260,7 @@ as_Blockss <- function(x, classify_ = FALSE) {
 
   # Slightly better error messages than lapply(); should be as fast or faster.
   for (i in seq_along(x)) {
-    x[[i]] <- as_Blocks(x[[i]], classify_ = classify_)
+    x[[i]] <- as_Blocks(x[[i]])
   }
   class(x) <- "Blockss"
   x
@@ -369,7 +359,7 @@ Inliness <- function(...) {
 
 
 #' @export
-as_Inlines <- function(x, classify_ = FALSE) {
+as_Inlines <- function(x) {
   if (inherits(x, "Inlines")) {
     return(x)
   }
@@ -382,17 +372,8 @@ as_Inlines <- function(x, classify_ = FALSE) {
   }
 
   for (i in seq_along(x)) {
-    if (classify_) {
-      if (x[[i]][["t"]] %in% names(Inline_types)) {
-        class(x[[i]]) <- "Inline"
-      } else {
-        stop("Unknown inline type: ", x[[i]][["t"]])
-      }
-
-    } else {
-      if (!inherits(x[[i]], "Inline")) {
-        stop('All elements in `x` must have class "Inline".')
-      }
+    if (!inherits(x[[i]], "Inline")) {
+      stop('All elements in `x` must have class "Inline".')
     }
   }
 
@@ -401,7 +382,7 @@ as_Inlines <- function(x, classify_ = FALSE) {
 }
 
 #' @export
-as_Inliness <- function(inliness, classify_ = FALSE) {
+as_Inliness <- function(inliness) {
   if (inherits(x, "Inliness")) {
     return(x)
   }
@@ -415,7 +396,7 @@ as_Inliness <- function(inliness, classify_ = FALSE) {
 
   # Slightly better error messages than lapply(); should be as fast or faster.
   for (i in seq_along(x)) {
-    x[[i]] <- as_Inlines(x[[i]], classify_ = classify_)
+    x[[i]] <- as_Inlines(x[[i]])
   }
 
   class(x) <- "Inliness"
