@@ -21,7 +21,7 @@ ast_types <- list(
   DefinitionList = list(
     # Not implemented yet
     category = "Block",
-    children = NULL
+    children = "InlinesBlockss_s"
   ),
   Div = list(
     category = "Block",
@@ -146,7 +146,7 @@ ast_types <- list(
   # =====================================================================
   Attr = list(
     category = "Attr",
-    children = c("Text", "Texts", "Text_Texts")
+    children = c("Text", "Texts", "TextText_s")
   ),
 
   Target = list(
@@ -605,6 +605,40 @@ validate_caption <- function(attr) {
   stopifnot(inherits(attr, "Caption"))
 }
 
+DefinitionList <- function(content) {
+  Element("DefinitionList", content)
+}
+
+as_InlinesBlockss <- function(x) {
+  if (inherits(x, "InlinesBlockss")) {
+    return(x)
+  }
+
+  if (!is_unnamed_list(x) || length(x) != 2) {
+    stop("`x` cannot be coerced to InlinesBlockss")
+  }
+
+  x[[1]] <- as_Inlines(x[[1]])
+  x[[2]] <- as_Blockss(x[[2]])
+  class(x) <- c("InlinesBlockss", "Element")
+  x
+}
+
+as_InlinesBlockss_s <- function(x) {
+  if (inherits(x, "InlinesBlockss_s")) {
+    return(x)
+  }
+
+  if (!is_unnamed_list(x)) {
+    stop("`x` cannot be coerced to InlinesBlockss_s")
+  }
+
+  x[] <- lapply(x, as_InlinesBlockss)
+  class(x) <- c("InlinesBlockss_s", "Element")
+  x
+}
+
+
 as_QuoteType <- function(quotetype) {
   if (!is_string(quotetype) ||
       !(quotetype == "SingleQuote" ||  quotetype == "DoubleQuote"))
@@ -670,7 +704,7 @@ ListAttributes <- function(start, style, delimiter) {
 
   add_class(
     list(start, list(t = style), list(t = delimiter)),
-    "ListAttributes"
+    c("ListAttributes", "Element")
   )
 }
 
@@ -733,7 +767,7 @@ as_Texts <- function(x) {
 # 3. unnamed list of unnamed lists, each containing two strings (which is the output format)
 #
 # This function will convert the input to the form (3).
-as_Text_Texts <- function(x) {
+as_TextText_s <- function(x) {
   # Check for (3)
   if (is_unnamed_list(x)) {
     results <- map_lgl(x, function(y) {

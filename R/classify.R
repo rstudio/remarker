@@ -44,7 +44,18 @@ classify <- function(x, new_class = NULL) {
       } else {
         x[["c"]] <- map2(x[["c"]], child_types, classify)
       }
+    },
+
+    # Some special-case weird ones
+    InlinesBlockss = {
+      x[[1]] <- classify(x[[1]], "Inlines")
+      x[[2]] <- classify(x[[2]], "Blockss")
+    },
+    InlinesBlockss_s = {
+      x[] <- lapply(x, classify, "InlinesBlockss")
     }
+
+
   )
 
   x

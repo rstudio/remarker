@@ -15,8 +15,12 @@ indent_string <- function(branches, branch_label = NULL) {
 
   } else {
     branch_label <- as.character(branch_label)
+    # Get string length here because crayon alters it.
+    branch_label_length <- nchar(branch_label)
 
-    if (nchar(branch_label) == 1) {
+    branch_label <- crayon::reset(branch_label)
+
+    if (branch_label_length == 1) {
       branch_label <- paste0("\u2500", branch_label)
     }
   }
