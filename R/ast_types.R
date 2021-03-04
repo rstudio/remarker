@@ -6,152 +6,243 @@ ast_types <- list(
   # ====================================================================
   # Block elements
   # ====================================================================
+  Blocks = list(
+    structure = "list",
+    category = "Blocks",
+    children = list(list("Block"))
+  ),
+  Blockss = list(
+    structure = "list",
+    category = "Blockss",
+    children = list(list("Blocks"))
+  ),
+
   BlockQuote = list(
+    structure = "tc",
     category = "Block",
-    children = "Blocks"
+    children = list("Blocks")
   ),
   BulletList = list(
+    structure = "tc",
     category = "Block",
-    children = "Blockss"
+    children = list("Blockss")
   ),
   CodeBlock = list(
+    structure = "tc",
     category = "Block",
-    children = c("Attr", "Text")
+    children = list("Attr", "Text")
   ),
   DefinitionList = list(
-    # Not implemented yet
+    structure = "tc",
     category = "Block",
-    children = "InlinesBlockss_s"
+    children = list("InlinesBlockss_s")
   ),
   Div = list(
+    structure = "tc",
     category = "Block",
-    children = c("Attr", "Blocks")
+    children = list("Attr", "Blocks")
   ),
   Header = list(
+    structure = "tc",
     category = "Block",
-    children = c("Int", "Attr", "Inlines")
+    children = list("Int", "Attr", "Inlines")
   ),
   HorizontalRule = list(
+    structure = "tc",
     category = "Block",
-    children = character(0)
+    children = list()
   ),
   LineBlock = list(
+    structure = "tc",
     category = "Block",
-    children = "Inliness"
+    children = list("Inliness")
   ),
   Null = list(
+    structure = "tc",
     category = "Block",
-    children = character(0)
+    children = list()
   ),
   OrderedList = list(
+    structure = "tc",
     category = "Block",
-    children = c("ListAttributes", "Blockss")
+    children = list("ListAttributes", "Blockss")
   ),
   Para = list(
+    structure = "tc",
     category = "Block",
-    children = "Inlines"
+    children = list("Inlines")
   ),
   Plain = list(
+    structure = "tc",
     category = "Block",
-    children = "Inlines"
+    children = list("Inlines")
   ),
   RawBlock = list(
+    structure = "tc",
     category = "Block",
-    children = c("Format", "Text")
+    children = list("Format", "Text")
   ),
   Table = list(
-    # Not implemented yet
+    structure = "tc",
     category = "Block",
-    children = NULL
+    children = list("Attr", "Caption", "Colspecs", "TableHead", "TableBodys",
+                    "TableFoot")
   ),
 
   # ====================================================================
   # Inline elements
   # ====================================================================
+  Inlines = list(
+    structure = "list",
+    category = "Inlines",
+    children = list(list("Inline"))
+  ),
+  Inliness = list(
+    structure = "list",
+    category = "Inliness",
+    children = list(list("Inlines"))
+  ),
+
   Cite = list(
+    structure = "tc",
     category = "Inline",
-    children = c("Citations", "Inlines")
+    children = list("Citations", "Inlines")
   ),
   Code = list(
+    structure = "tc",
     category = "Inline",
-    children = c("Attr", "Text")
+    children = list("Attr", "Text")
   ),
   Emph = list(
+    structure = "tc",
     category = "Inline",
-    children = "Inlines"
+    children = list("Inlines")
   ),
   Image = list(
+    structure = "tc",
     category = "Inline",
-    children = c("Attr", "Inlines", "Target")
+    children = list("Attr", "Inlines", "Target")
   ),
   LineBreak = list(
+    structure = "tc",
     category = "Inline",
-    children = character(0)
+    children = list()
   ),
   Link = list(
+    structure = "tc",
     category = "Inline",
-    children = c("Attr", "Inlines", "Target")
+    children = list("Attr", "Inlines", "Target")
   ),
   Math = list(
+    structure = "tc",
     category = "Inline",
-    children = c("MathType", "Text")
+    children = list("MathType", "Text")
   ),
   Note = list(
+    structure = "tc",
     category = "Inline",
-    children = "Blocks"
+    children = list("Blocks")
   ),
   Quoted = list(
+    structure = "tc",
     category = "Inline",
-    children = c("QuoteType", "Inlines")
+    children = list("QuoteType", "Inlines")
   ),
   RawInline = list(
+    structure = "tc",
     category = "Inline",
-    children = c("Format", "Text")
+    children = list("Format", "Text")
   ),
   SmallCaps = list(
+    structure = "tc",
     category = "Inline",
-    children = "Inlines"
+    children = list("Inlines")
   ),
   SoftBreak = list(
+    structure = "tc",
     category = "Inline",
-    children = character(0)
+    children = list()
   ),
   Space = list(
+    structure = "tc",
     category = "Inline",
-    children = character(0)
+    children = list()
   ),
   Span = list(
+    structure = "tc",
     category = "Inline",
-    children = c("Attr", "Inlines")
+    children = list("Attr", "Inlines")
   ),
   Str = list(
+    structure = "tc",
     category = "Inline",
-    children = "Text"
+    children = list("Text")
   ),
   Strikeout = list(
+    structure = "tc",
     category = "Inline",
-    children = "Inlines"
+    children = list("Inlines")
   ),
   Strong = list(
+    structure = "tc",
     category = "Inline",
-    children = "Inlines"
+    children = list("Inlines")
   ),
   Subscript = list(
+    structure = "tc",
     category = "Inline",
-    children = "Inlines"
+    children = list("Inlines")
   ),
 
   # =====================================================================
   # Element components
   # =====================================================================
+  Alignment = list(
+    structure = "tc",
+    category = "Alignment",
+    # TODO: This sort of doesn't work.
+    children = list()
+  ),
   Attr = list(
+    structure = "list",
     category = "Attr",
-    children = c("Text", "Texts", "TextText_s")
+    children = list("Text", "Texts", "TextText_s")
+  ),
+  Caption = list(
+    structure = "list",
+    category = "Caption",
+    children = list("Blocks", "Inlines")
+  ),
+  ColSpec = list(
+    structure = "list",
+    category = "ColSpec",
+    children = list("Alignment", "ColWidth")
+  ),
+  ColSpecs = list(
+    structure = "list",
+    category = "ColSpecs",
+    children = list("Alignment", "ColWidth")
+  ),
+  Target = list(
+    structure = "list",
+    category = "Target",
+    children = list("Text", "Text")
   ),
 
-  Target = list(
-    category = "Target",
-    children = c("Text", "Text")
+  Texts = list(
+    structure = "list",
+    category = "Texts",
+    children = list(list("Text"))
+  ),
+  TextText = list(
+    structure = "list",
+    category = "TextText",
+    children = list("Text", "Text")
+  ),
+  TextText_s = list(
+    structure = "list",
+    category = "TextText_s",
+    children = list(list("TextText"))
   )
 )
 
@@ -168,19 +259,35 @@ Element <- function(type, ...) {
   content <- list(...)
   content_length <- length(content)
 
-  if (length(child_types) != content_length) {
-    stop("Defined number of items does not match length of ...")
+  if (length(child_types) >= 1 && is.list(child_types[[1]])) {
+    # Some types (like Blocks, Inlines) have a variable number of children, all
+    # of the same type.
+    child_type <- child_types[[1]][[1]]
+    fn_name <- as.symbol(paste0("as_", child_type))
+
+    for (i in seq_len(content_length)) {
+      # Construct an expression like `content[[i]] <- as_Inlines(content[[i]])`
+      expr <- substitute(content[[i]] <- fn(content[[i]]), list(fn = fn_name))
+      eval(expr)
+    }
+
+  } else {
+    # Most types have a specific number of children of various types.
+    if (length(child_types) != content_length) {
+      stop("Defined number of items does not match length of ...")
+    }
+
+    for (i in seq_len(content_length)) {
+      # Construct an expression like `content[[i]] <- as_Inlines(content[[i]])`
+      fn_name <- as.symbol(paste0("as_", child_types[[i]]))
+      expr <- substitute(content[[i]] <- fn(content[[i]]), list(fn = fn_name))
+      eval(expr)
+    }
   }
 
-  for (i in seq_len(content_length)) {
-    # Construct an expression like `content[[i]] <- as_Inlines(content[[i]])`
-    fn_name <- as.symbol(paste0("as_", child_types[[i]]))
-    expr <- substitute(content[[i]] <- fn(content[[i]]), list(fn = fn_name))
-    eval(expr)
-  }
 
-
-  if (type_info$category == "Block" || type_info$category == "Inline") {
+  if (type_info$structure == "tc") {
+    # Block, Inline, and a few others have 't' and 'c' fields.
     if (content_length == 0) {
       res <- list(t = type)
     } else if (length(content) == 1) {
@@ -191,8 +298,8 @@ Element <- function(type, ...) {
     }
 
   } else {
-    # For element component types like Attr, they are just arrays; they don't
-    # have t and c fields.
+    # Most element component types like Attr are just unnamed lists; they don't
+    # have 't' and 'c' field.
     res <- content
   }
 
@@ -210,14 +317,21 @@ Element <- function(type, ...) {
 
 #' @export
 Blocks <- function(...) {
-  x <- list(...)
-  as_Blocks(x)
+  Element("Blocks", ...)
 }
 
 #' @export
 Blockss <- function(...) {
-  x <- list(...)
-  as_Blockss(x)
+  Element("Blockss", ...)
+}
+
+# This can't actually do coercion because it doesn't know which Block type to
+# coerce to, but it's the best we can do.
+as_Block <- function(x) {
+  if (inherits(x, "Block")) {
+    return(x)
+  }
+  stop("Can't coerce `x` to Block")
 }
 
 #' @export
@@ -236,14 +350,7 @@ as_Blocks <- function(x) {
     stop("`x` must be NULL or an unnamed list")
   }
 
-  for (i in seq_along(x)) {
-    if (!inherits(x[[i]], "Block")) {
-      stop('All elements in `x` must have class "Block".')
-    }
-  }
-
-  class(x) <- c("Blocks", "Element")
-  x
+  do.call(Blocks, x)
 }
 
 #' @export
@@ -258,12 +365,7 @@ as_Blockss <- function(x) {
     stop("`x` must be NULL or an unnamed list")
   }
 
-  # Slightly better error messages than lapply(); should be as fast or faster.
-  for (i in seq_along(x)) {
-    x[[i]] <- as_Blocks(x[[i]])
-  }
-  class(x) <- c("Blockss", "Element")
-  x
+  do.call(Blockss, x)
 }
 
 
@@ -362,11 +464,7 @@ RawBlock <- function(text, format) {
 
 #' @export
 Table <- function(caption = Caption(), colspecs, head, bodies, foot, attr = Attr()) {
-  validate_caption(caption)
-  validate_colspecs(colspecs)
-  # validate_tablehead(head)
-  validate_attr(attr)
-  stop("Not yet implemented")
+  Element("Table", attr, caption, colspecs, head, bodies, foot)
 }
 
 # =====================================================================
@@ -375,16 +473,23 @@ Table <- function(caption = Caption(), colspecs, head, bodies, foot, attr = Attr
 
 #' @export
 Inlines <- function(...) {
-  x <- list(...)
-  as_Inlines(x)
+  Element("Inlines", ...)
 }
 
 #' @export
 Inliness <- function(...) {
-  x <- list(...)
-  as_Inliness(x)
+  Element("Inliness", ...)
 }
 
+
+# This can't actually do coercion because it doesn't know which Inline type to
+# coerce to, but it's the best we can do.
+as_Inline <- function(x) {
+  if (inherits(x, "Inline")) {
+    return(x)
+  }
+  stop("Can't coerce `x` to Inline")
+}
 
 #' @export
 as_Inlines <- function(x) {
@@ -395,6 +500,7 @@ as_Inlines <- function(x) {
   if (is.null(x)) {
     x <- list()
   }
+
   if (!is_unnamed_list(x)) {
     if (inherits(x, "Inline")) {
       stop("`x` is an Inline object. Did you mean to wrap it with `Inlines()`?")
@@ -402,14 +508,7 @@ as_Inlines <- function(x) {
     stop("`x` must be NULL or an unnamed list")
   }
 
-  for (i in seq_along(x)) {
-    if (!inherits(x[[i]], "Inline")) {
-      stop('All elements in `x` must have class "Inline".')
-    }
-  }
-
-  class(x) <- c("Inlines", "Element")
-  x
+  do.call(Inlines, x)
 }
 
 #' @export
@@ -425,13 +524,7 @@ as_Inliness <- function(inliness) {
     stop("`x` must be NULL or an unnamed list")
   }
 
-  # Slightly better error messages than lapply(); should be as fast or faster.
-  for (i in seq_along(x)) {
-    x[[i]] <- as_Inlines(x[[i]])
-  }
-
-  class(x) <- c("Inliness", "Element")
-  x
+  do.call(Inliness, x)
 }
 
 
@@ -569,6 +662,12 @@ Underline <- function(content) {
 # =====================================================================
 
 #' @export
+Alignment <- function(alignment = c("AlignDefault", "AlignLeft", "AlignRight", "AlignCenter")) {
+  alignment <- match.arg(alignment)
+  Element("Alignment", alignment)
+}
+
+#' @export
 Attr <- function(identifier = "", classes = list(), attributes = list()) {
   Element("Attr", identifier, classes, attributes)
 }
@@ -591,19 +690,50 @@ as_Attr <- function(x) {
   stop("`x` must be NULL or an unnamed list of length 3.")
 }
 
-Caption_ <- function(long = NULL, short = list()) {
-  # Currently not sure how to use block-level captions
-  long <- as_Blocks(long)
-  short <- as_Inlines(short)
-  add_class(
-    list(long, short),
-    "Caption"
-  )
+#' @export
+Caption <- function(long = NULL, short = NULL) {
+  Element("Caption", long, short)
 }
 
-validate_caption <- function(attr) {
-  stopifnot(inherits(attr, "Caption"))
+as_Caption <- function(x) {
+  if (inherits(x, "Caption")) {
+    return(x)
+  }
+  if (!is_unnamed_list(x) || length(x) != 2) {
+    stop("`x` cannot be coerced to Caption")
+  }
+  do.call(Caption, x)
 }
+
+#' @export
+ColSpec <- function(alignment = Alignment(), colwidth = ColWidth()) {
+  Element("ColSpec", alignment, colwidth)
+}
+
+as_ColSpec <- function(x) {
+  if (inherits(x, "ColSpec")) {
+    return(x)
+  }
+
+}
+
+ColSpecs <- function(...) {
+  x <- list(...)
+
+}
+
+validate_colspecs <- function(colspecs) {
+  if ( !(is.null(colspecs) || is_unnamed_list(colspecs)) ) {
+    stop("`colspecs` object must be NULL or an unnamed list")
+  }
+
+  for (x in colspecs) {
+    if (!inherits(x, "ColSpec")) {
+      stop('All elements in `colspecs` must have class "ColSpec".')
+    }
+  }
+}
+
 
 DefinitionList <- function(content) {
   Element("DefinitionList", content)
@@ -649,36 +779,6 @@ as_QuoteType <- function(quotetype) {
   add_class(
     list(t = quotetype),
     c("QuoteType", "Element")
-  )
-}
-
-
-ColSpec_ <- function(alignment = Alignment_(), colwidth = ColWidth_()) {
-  stopifnot(inherits(alignment, "Alignment"))
-  stopifnot(inherits(colwidth, "ColWidth"))
-  add_class(
-    list(alignment, colwidth),
-    "ColSpec"
-  )
-}
-
-validate_colspecs <- function(colspecs) {
-  if ( !(is.null(colspecs) || is_unnamed_list(colspecs)) ) {
-    stop("`colspecs` object must be NULL or an unnamed list")
-  }
-
-  for (x in colspecs) {
-    if (!inherits(x, "ColSpec")) {
-      stop('All elements in `colspecs` must have class "ColSpec".')
-    }
-  }
-}
-
-Alignment_ <- function(alignment = "AlignDefault") {
-  stopifnot(alignment %in% c("AlignDefault", "AlignLeft", "AlignRight", "AlignCenter"))
-  add_class(
-    list(t = alignment),
-    "Alignment"
   )
 }
 

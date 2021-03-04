@@ -65,7 +65,7 @@ print.Element <- function(x, ..., branches = character(0), branch_label = NULL) 
 
     content <- x[["c"]]
 
-    if (length(content) == 0) {
+    if (is.null(content)) {
       # Do nothing
 
     } else if (length(content) == 1) {
