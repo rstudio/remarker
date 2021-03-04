@@ -54,6 +54,12 @@ classify <- function(x, new_class = NULL) {
     return(x)
   }
 
+  if (type_info$structure == "t_enum") {
+    class(x) <- c(new_class, "Element")
+    return(x)
+  }
+
+
   # If we get here, we're working with elements other than Inline, Block, and
   # atomics.
   child_types <- type_info$children

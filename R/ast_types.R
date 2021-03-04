@@ -198,10 +198,10 @@ ast_types <- list(
   # Element components
   # =====================================================================
   Alignment = list(
-    # TODO: This sort of doesn't work.
-    structure = "tc",
+    structure = "t_enum",
     category = "Alignment",
-    children = list()
+    children = list(),
+    values = c("AlignLeft", "AlignRight", "AlignCenter", "AlignDefault")
   ),
   Attr = list(
     structure = "list",
@@ -256,22 +256,24 @@ ast_types <- list(
     children = list("Int", "ListNumberStyle", "ListNumberDelim")
   ),
   ListNumberStyle = list(
-    # TODO: This sort of doesn't work.
-    structure = "tc",
+    structure = "t_enum",
     category = "ListNumberStyle",
-    children = list()
+    children = list(),
+    values = c("DefaultStyle", "Example", "Decimal",
+               "LowerRoman", "UpperRoman",
+               "LowerAlpha", "UpperAlpha")
   ),
   ListNumberDelim = list(
-    # TODO: This sort of doesn't work.
-    structure = "tc",
+    structure = "t_enum",
     category = "ListNumberDelim",
-    children = list()
+    children = list(),
+    values = c("DefaultDelim", "Period", "OneParen", "TwoParens")
   ),
   QuoteType = list(
-    # TODO: This sort of doesn't work.
-    structure = "tc",
+    structure = "t_enum",
     category = "QuoteType",
-    children = list()
+    children = list(),
+    values = c("SingleQuote", "DoubleQuote")
   ),
   Row = list(
     structure = "list",
