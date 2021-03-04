@@ -85,7 +85,7 @@ ast_types <- list(
   Table = list(
     structure = "tc",
     category = "Block",
-    children = list("Attr", "Caption", "Colspecs", "TableHead", "TableBodys",
+    children = list("Attr", "Caption", "ColSpecs", "TableHead", "TableBodys",
                     "TableFoot")
   ),
 
@@ -198,9 +198,9 @@ ast_types <- list(
   # Element components
   # =====================================================================
   Alignment = list(
+    # TODO: This sort of doesn't work.
     structure = "tc",
     category = "Alignment",
-    # TODO: This sort of doesn't work.
     children = list()
   ),
   Attr = list(
@@ -211,7 +211,18 @@ ast_types <- list(
   Caption = list(
     structure = "list",
     category = "Caption",
+    # TODO: Blocks can be NULL?
     children = list("Blocks", "Inlines")
+  ),
+  Cell = list(
+    structure = "list",
+    category = "Cell",
+    children = list("Attr", "Alignment", "RowSpan", "ColSpan", "Blocks")
+  ),
+  Cells = list(
+    structure = "list",
+    category = "Cells",
+    children = list(list("Cell"))
   ),
   ColSpec = list(
     structure = "list",
@@ -221,14 +232,82 @@ ast_types <- list(
   ColSpecs = list(
     structure = "list",
     category = "ColSpecs",
-    children = list("Alignment", "ColWidth")
+    children = list(list("ColSpec"))
+  ),
+  ColWidth = list(
+    structure = "tc",
+    category = "ColWidth",
+    # TODO: Optional string?
+    children = list()
+  ),
+  InlinesBlockss = list(
+    structure = "list",
+    category = "InlinesBlockss",
+    children = list("Inlines", "Blockss")
+  ),
+  InlinesBlockss_s = list(
+    structure = "list",
+    category = "InlinesBlockss_s",
+    children = list(list("InlinesBlockss"))
+  ),
+  ListAttributes = list(
+    structure = "list",
+    category = "ListAttributes",
+    children = list("Int", "ListNumberStyle", "ListNumberDelim")
+  ),
+  ListNumberStyle = list(
+    # TODO: This sort of doesn't work.
+    structure = "tc",
+    category = "ListNumberStyle",
+    children = list()
+  ),
+  ListNumberDelim = list(
+    # TODO: This sort of doesn't work.
+    structure = "tc",
+    category = "ListNumberDelim",
+    children = list()
+  ),
+  QuoteType = list(
+    # TODO: This sort of doesn't work.
+    structure = "tc",
+    category = "QuoteType",
+    children = list()
+  ),
+  Row = list(
+    structure = "list",
+    category = "Row",
+    children = list("Attr", "Cells")
+  ),
+  Rows = list(
+    structure = "list",
+    category = "Rows",
+    children = list(list("Row"))
+  ),
+  TableBody = list(
+    structure = "list",
+    category = "TableBody",
+    children = list("Attr", "RowHeadColumns", "Rows", "Rows")
+  ),
+  TableBodys = list(
+    structure = "list",
+    category = "TableBodys",
+    children = list(list("TableBody"))
+  ),
+  TableFoot = list(
+    structure = "list",
+    category = "TableHead",
+    children = list("Attr", "Rows")
+  ),
+  TableHead = list(
+    structure = "list",
+    category = "TableHead",
+    children = list("Attr", "Rows")
   ),
   Target = list(
     structure = "list",
     category = "Target",
     children = list("Text", "Text")
   ),
-
   Texts = list(
     structure = "list",
     category = "Texts",
@@ -243,6 +322,36 @@ ast_types <- list(
     structure = "list",
     category = "TextText_s",
     children = list(list("TextText"))
+  ),
+
+  # =====================================================================
+  # Atomic types
+  # =====================================================================
+  Int = list(
+    structure = "atomic",
+    category = "atomic",
+    children = list()
+  ),
+  ColSpan = list(
+    # TODO: This is basically an alias for Int - make that work, as well
+    structure = "atomic",
+    category = "atomic",
+    children = list()
+  ),
+  RowSpan = list(
+    structure = "atomic",
+    category = "atomic",
+    children = list()
+  ),
+  RowHeadColumns = list(
+    structure = "atomic",
+    category = "atomic",
+    children = list()
+  ),
+  Text = list(
+    structure = "atomic",
+    category = "atomic",
+    children = list()
   )
 )
 
