@@ -71,7 +71,12 @@ print.Element <- function(x, ..., branches = character(0), branch_label = NULL) 
     } else if (length(content) == 1) {
       if (is.atomic(content)) {
         # Special case for strings and numbers: keep on same line
-        cat0("c:", crayon::green('"', escape_str(content), '"', sep = ""))
+        if (is_string(content)) {
+          cat0("c:", crayon::green('"', escape_str(content), '"', sep = ""))
+        } else {
+          cat0("c:", crayon::green(content))
+        }
+
       } else {
         print(content, branches = c(branches, "LAST_CHILD"), branch_label = "c")
       }
