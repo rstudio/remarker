@@ -703,9 +703,17 @@ ListAttributes <- function(start, style, delimiter) {
   stopifnot(delimiter %in% c("DefaultDelim", "Period", "OneParen", "TwoParens"))
 
   add_class(
-    list(start, list(t = style), list(t = delimiter)),
+    list(as.integer(start), list(t = style), list(t = delimiter)),
     c("ListAttributes", "Element")
   )
+}
+
+as_ListAttributes <- function(x) {
+  if (inherits(x, "ListAttributes")) {
+    return(x)
+  }
+
+  do.call(ListAttributes, x)
 }
 
 Target <- function(url, title) {
