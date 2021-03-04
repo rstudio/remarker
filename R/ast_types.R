@@ -220,7 +220,6 @@ Blockss <- function(...) {
   as_Blockss(x)
 }
 
-
 #' @export
 as_Blocks <- function(x) {
   if (inherits(x, "Blocks")) {
@@ -265,6 +264,34 @@ as_Blockss <- function(x) {
   }
   class(x) <- c("Blockss", "Element")
   x
+}
+
+
+#' @export
+`[[<-.Block` <- function(x, name, value) {
+  if (name == "t" && !is_string(value)) {
+    stop("Value assigned to `t` must be a string.")
+  }
+  NextMethod()
+}
+
+#' @export
+`$<-.Block` <- `[[<-.Block`
+
+#' @export
+`[[<-.Blocks` <- function(x, name, value) {
+  if (!inherits(value, "Block")) {
+    stop('`value` must be an object of class "Block"')
+  }
+  NextMethod()
+}
+
+#' @export
+`[[<-.Blockss` <- function(x, name, value) {
+  if (!inherits(value, "Blocks")) {
+    stop('`value` must be an object of class "Blocks"')
+  }
+  NextMethod()
 }
 
 
@@ -405,6 +432,34 @@ as_Inliness <- function(inliness) {
 
   class(x) <- c("Inliness", "Element")
   x
+}
+
+
+#' @export
+`[[<-.Inline` <- function(x, name, value) {
+  if (name == "t" && !is_string(value)) {
+    stop("Value assigned to `t` must be a string.")
+  }
+  NextMethod()
+}
+
+#' @export
+`$<-.Inline` <- `[[<-.Inline`
+
+#' @export
+`[[<-.Inlines` <- function(x, name, value) {
+  if (!inherits(value, "Inline")) {
+    stop('`value` must be an object of class "Inline"')
+  }
+  NextMethod()
+}
+
+#' @export
+`[[<-.Inliness` <- function(x, name, value) {
+  if (!inherits(value, "Inlines")) {
+    stop('`value` must be an object of class "Inlines"')
+  }
+  NextMethod()
 }
 
 
