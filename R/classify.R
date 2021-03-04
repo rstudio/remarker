@@ -73,7 +73,7 @@ classify <- function(x, new_class = NULL) {
     contents <- x
   }
 
-  if (length(child_types) >= 1 &&is.list(child_types[[1]])) {
+  if (length(child_types) >= 1 && is.list(child_types[[1]])) {
     if (length(child_types) != 1) {
       stop("Don't know how to handle this yet.")
     }
@@ -81,7 +81,12 @@ classify <- function(x, new_class = NULL) {
     # number of items, all of the same type.
     contents[] <- lapply(contents, classify, child_types[[1]][[1]])
 
+  } else if (length(child_types) == 1 && is.atomic(contents)) {
+    # Handles cases where c is an atomic value, like ColWidth.
+    contents <- classify(contents, child_types[[1]])
+
   } else {
+    # All other cases, like Attr, Caption, Row.
     contents[] <- map2(contents, child_types, classify)
   }
 

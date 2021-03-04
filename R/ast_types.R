@@ -235,10 +235,13 @@ ast_types <- list(
     children = list(list("ColSpec"))
   ),
   ColWidth = list(
+    # This one doesn't fit into the type system as currently designed, since it
+    # can have a variable structure:
+    #   { t: "ColWidth", c: 0.5 }  or  { t: "ColWidthDefault"}
+    # However, it does happen to work with classify().
     structure = "tc",
     category = "ColWidth",
-    # TODO: Optional string?
-    children = list()
+    children = list("Double")
   ),
   InlinesBlockss = list(
     structure = "list",
@@ -334,6 +337,11 @@ ast_types <- list(
     category = "atomic",
     children = list()
   ),
+  Double = list(
+    structure = "atomic",
+    category = "atomic",
+    children = list()
+  ),
   ColSpan = list(
     # TODO: This is basically an alias for Int - make that work, as well
     structure = "atomic",
@@ -369,6 +377,16 @@ Element <- function(type, ...) {
 
   content <- list(...)
   content_length <- length(content)
+
+  if (type_info$structure == "t_enum") {
+    # If it's an enumerated type, the content must have one element.
+    if (! content[[1]] %in% type_info$values) {
+      stop(content[[1]], " is not in ", paste(type_info$values, collapse = ", "))
+    }
+    res <- list(t = content[[1]])
+    class(res) <- c(type_info$category, "Element")
+    return(res)
+  }
 
   if (length(child_types) >= 1 && is.list(child_types[[1]])) {
     # Some types (like Blocks, Inlines) have a variable number of children, all
@@ -778,6 +796,21 @@ Alignment <- function(alignment = c("AlignDefault", "AlignLeft", "AlignRight", "
   Element("Alignment", alignment)
 }
 
+as_Alignment <- function(x) {
+  if (inherits(x, "Alignment")) {
+    return(x)
+  }
+
+  if (!is_string(x) ||
+      !(x %in% c("AlignDefault", "AlignLeft", "AlignRight", "AlignCenter")))
+  {
+    stop('`x` must be "AlignDefault", "AlignLeft", "AlignRight", or "AlignCenter".')
+  }
+
+  Alignment(x)
+}
+
+
 #' @export
 Attr <- function(identifier = "", classes = list(), attributes = list()) {
   Element("Attr", identifier, classes, attributes)
@@ -879,18 +912,23 @@ as_InlinesBlockss_s <- function(x) {
   x
 }
 
+# TODO: Add default enum values to args
+QuoteType <- function(quotetype) {
+  Element("QuoteType", quotetype)
+}
 
-as_QuoteType <- function(quotetype) {
-  if (!is_string(quotetype) ||
-      !(quotetype == "SingleQuote" ||  quotetype == "DoubleQuote"))
+as_QuoteType <- function(x) {
+  if (inherits(x, "QuoteType")) {
+    return(x)
+  }
+
+  if (!is_string(x) ||
+      !(x == "SingleQuote" ||  x == "DoubleQuote"))
   {
     stop('`quotetype` must be "SingleQuote" or "DoubleQuote".')
   }
 
-  add_class(
-    list(t = quotetype),
-    c("QuoteType", "Element")
-  )
+  QuoteType(x)
 }
 
 ColWidth_ <- function(colwidth = NULL) {
