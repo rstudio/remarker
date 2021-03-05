@@ -861,9 +861,9 @@ as_ColSpec <- function(x) {
 
 }
 
+#' @export
 ColSpecs <- function(...) {
-  x <- list(...)
-
+  Element("ColSpecs", ...)
 }
 
 validate_colspecs <- function(colspecs) {
@@ -879,6 +879,34 @@ validate_colspecs <- function(colspecs) {
 }
 
 
+#' @export
+ColWidth <- function(colwidth = NULL) {
+  if (is.null(colwidth)) {
+    # This is the one case where we can't call Element(), because the type spec
+    # doesn't adequately describe the two different possible structures for
+    # ColWidth objects.
+    add_class(
+      list(t = "ColWidthDefault"),
+      c("ColWidth", "Element")
+    )
+
+  } else if (is_numeric(colwidth)) {
+    Element("ColWidth", colwidth)
+
+  } else {
+    stop("Invalid value of `colwidth`.")
+  }
+}
+
+as_ColWidth <- function(x) {
+  if (inherits(x, "ColWidth")) {
+    return(x)
+  }
+
+  ColWidth(x)
+}
+
+#' @export
 DefinitionList <- function(content) {
   Element("DefinitionList", content)
 }
@@ -913,6 +941,7 @@ as_InlinesBlockss_s <- function(x) {
 }
 
 # TODO: Add default enum values to args
+#' @export
 QuoteType <- function(quotetype) {
   Element("QuoteType", quotetype)
 }
@@ -930,19 +959,6 @@ as_QuoteType <- function(x) {
 
   QuoteType(x)
 }
-
-ColWidth_ <- function(colwidth = NULL) {
-  if (is.null(colwidth)) {
-    res <- list(t = "ColWidthDefault")
-  } else if (is_numeric(colwidth)) {
-    res <- list(t = "ColWidth", c = colwidth)
-  } else {
-    stop("Invalid value of `colwidth`.")
-  }
-
-  add_class(res, "ColWidth")
-}
-
 
 #' @export
 ListAttributes <- function(start, style, delimiter) {
@@ -965,6 +981,7 @@ as_ListAttributes <- function(x) {
   do.call(ListAttributes, x)
 }
 
+#' @export
 Target <- function(url, title) {
   Element("Target", url, title)
 }
@@ -985,6 +1002,10 @@ as_Target <- function(x) {
   stop("`x` cannot be coerced to a Target")
 }
 
+as_Double <- function(x) {
+  if (!is_numeric(x)) stop("x must be a number")
+  x
+}
 
 as_Int <- function(x) {
   if (!is_numeric(x)) stop("x must be a number")
