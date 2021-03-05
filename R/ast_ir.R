@@ -1,7 +1,7 @@
 
 #' @export
 ast_ir <- function(x) {
-  stopifnot(inherits(x, "pandoc_ast"))
+  stopifnot(inherits(x, "Pandoc"))
 
   if (!setequal(names(x), c("pandoc-api-version", "meta", "blocks"))) {
     stop("process_doc requires a Pandoc AST object.")

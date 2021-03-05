@@ -36,7 +36,7 @@ json_ast <- function(ast_json, classify = TRUE) {
   if (classify) {
     ast$blocks <- classify(ast$blocks, "Blocks")
   }
-  add_class(ast,  "pandoc_ast")
+  add_class(ast,  "Pandoc")
 }
 
 
@@ -46,7 +46,7 @@ json_ast <- function(ast_json, classify = TRUE) {
 #' @param outfile Output filename.
 #' @export
 ast_md <- function(x, outfile = NULL) {
-  stopifnot(inherits(x, "pandoc_ast"))
+  stopifnot(inherits(x, "Pandoc"))
   stopifnot(is.null(outfile) || is_string(outfile))
 
   tmpfile_json <- tempfile()
