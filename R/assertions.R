@@ -20,8 +20,7 @@ is_unnamed_list <- function(x) {
   is.list(x) && is_unnamed(x)
 }
 
-
-is_named_list <- function(x) {
+is_all_named_list <- function(x) {
   is.list(x) && is_all_named(x)
 }
 
