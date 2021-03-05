@@ -27,13 +27,18 @@ md_ast <- function(file = NULL, text = NULL, collapse_strings = TRUE, classify =
   )
 
   json <- system2("pandoc", args = args, input = text, stdout = TRUE)
+  json_ast(json)
+}
 
-  ast <- jsonlite::fromJSON(json, simplifyDataFrame = FALSE, simplifyVector = FALSE)
+#' @export
+json_ast <- function(ast_json, classify = TRUE) {
+  ast <- jsonlite::fromJSON(ast_json, simplifyDataFrame = FALSE, simplifyVector = FALSE)
   if (classify) {
     ast$blocks <- classify(ast$blocks, "Blocks")
   }
   add_class(ast,  "pandoc_ast")
 }
+
 
 #' Given a Pandoc AST, write to a file
 #'
@@ -57,4 +62,9 @@ ast_md <- function(x, outfile = NULL) {
       if (!is.null(outfile)) c("-o", outfile)
     )
   )
+}
+
+#' @export
+ast_json <- function(x) {
+  jsonlite::toJSON(unclass_recursive(x), auto_unbox = TRUE)
 }
