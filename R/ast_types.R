@@ -6,17 +6,6 @@ ast_types <- list(
   # ====================================================================
   # Block elements
   # ====================================================================
-  Blocks = list(
-    structure = "list",
-    category = "Blocks",
-    children = list(list("Block"))
-  ),
-  Blockss = list(
-    structure = "list",
-    category = "Blockss",
-    children = list(list("Blocks"))
-  ),
-
   BlockQuote = list(
     structure = "tc",
     category = "Block",
@@ -89,20 +78,20 @@ ast_types <- list(
                     "TableFoot")
   ),
 
+  Blocks = list(
+    structure = "list",
+    category = "Blocks",
+    children = list(list("Block"))
+  ),
+  Blockss = list(
+    structure = "list",
+    category = "Blockss",
+    children = list(list("Blocks"))
+  ),
+
   # ====================================================================
   # Inline elements
   # ====================================================================
-  Inlines = list(
-    structure = "list",
-    category = "Inlines",
-    children = list(list("Inline"))
-  ),
-  Inliness = list(
-    structure = "list",
-    category = "Inliness",
-    children = list(list("Inlines"))
-  ),
-
   Cite = list(
     structure = "tc",
     category = "Inline",
@@ -192,6 +181,17 @@ ast_types <- list(
     structure = "tc",
     category = "Inline",
     children = list("Inlines")
+  ),
+
+  Inlines = list(
+    structure = "list",
+    category = "Inlines",
+    children = list(list("Inline"))
+  ),
+  Inliness = list(
+    structure = "list",
+    category = "Inliness",
+    children = list(list("Inlines"))
   ),
 
   # =====================================================================
