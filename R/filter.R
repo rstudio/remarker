@@ -227,7 +227,7 @@ categorize_filters <- function(filters) {
 
   filter_categories <- c("Inline", "Inlines", "Block", "Blocks", "Meta", "Pandoc")
 
-  category_map <- vapply(ast_types, `[[`, "category", FUN.VALUE = "")
+  category_map <- map_chr(ast_types, "category")
   # Add a few types that aren't listed in ast_types
   category_map <- c(
     category_map,

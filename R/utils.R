@@ -28,3 +28,42 @@ escape_dbl_quotes <- function(x) {
 `%||%` <- function(a, b) {
   if (is.null(a)) b else a
 }
+
+
+# =====================================================================
+# purrr-like functions
+# =====================================================================
+# These functions provide a similar API to purrr, but some are significantly
+# faster.
+#
+map <- function(.x, .f, ...) {
+  lapply(.x, .f, ...)
+}
+
+map2 <- function(.x, .y, .f, ...) {
+  mapply(.f, .x, .y, ..., SIMPLIFY = FALSE)
+}
+
+map_chr <- function(.x, .f, ...) {
+  if (is.character(.f)) {
+    vapply(.x, `[[`, .f, ..., FUN.VALUE = NA_character_)
+  } else {
+    vapply(.x, .f, ..., FUN.VALUE = NA_character_)
+  }
+}
+
+map_lgl <- function(.x, .f, ...) {
+  if (is.character(.f)) {
+    vapply(.x, `[[`, .f, ..., FUN.VALUE = NA)
+  } else {
+    vapply(.x, .f, ..., FUN.VALUE = NA)
+  }
+}
+
+map_int <- function(.x, .f, ...) {
+  if (is.character(.f)) {
+    vapply(.x, `[[`, .f, ..., FUN.VALUE = NA_integer_)
+  } else {
+    vapply(.x, .f, ..., FUN.VALUE = NA_integer_)
+  }
+}
