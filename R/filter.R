@@ -41,38 +41,36 @@ ast_walk <- function(x, filters, category) {
       type <- x[["t"]]
 
       # Look for a filter for this specific type.
-      filter <- filters[[type]]
+      filter_fn <- filters[[type]]
 
       # Fall back to "Inline" or "Block" filters, if more specific filter (like
       # "Str" or "Para") is not present.
-      if (is.null(filter)) {
-        filter <- filters[[category]]
+      if (is.null(filter_fn)) {
+        filter_fn <- filters[[category]]
       }
 
     } else if (category == "Blocks" || category == "Inlines") {
-      filter <- filters[[category]]
+      filter_fn <- filters[[category]]
     }
 
-    if (is.null(filter)) {
+    if (is.null(filter_fn)) {
       return(x)
     }
 
     # If we get here, we have a filter function for this element.
-    x <- apply_filter(x, filter)
+    x <- apply_filter(x, filter_fn)
   }
 
   # Recurse. We don't need to recurse into every possible kind of child list --
   # only the ones listed here.
   if (x_cat == "Inline" || x_cat == "Block") {
-    if (is.list(x[["c"]])) {
-      x[["c"]][] <- lapply(x[["c"]], ast_walk, filters, category)
+    if (!is.atomic(x$c)) {
+      x$c <- ast_walk(x$c, filters, category)
     }
-  } else if (x_cat %in% c("Inlines", "Blocks", "Inliness", "Blockss", "Pandoc", "Meta")) {
-    if (is.list(x)) {
-      for (i in seq_along(x)) {
-        x[[i]] <- ast_walk(x[[i]], filters, category)
-      }
-      # x[] <- lapply(x, ast_walk, filters, category)
+
+  } else if (x_cat %in% c("Inlines", "Blocks", "Inliness", "Blockss", "Pandoc", "Meta", "list")) {
+    if (!is.atomic(x)) {
+      x[] <- lapply(x, ast_walk, filters, category)
     }
   }
 
@@ -82,10 +80,10 @@ ast_walk <- function(x, filters, category) {
 # Call filter(x), and do some checking on the result.
 # If filter(x) returns NULL, return the original object.
 # If it returns an object, make sure the category matches.
-apply_filter <- function(x, filter) {
+apply_filter <- function(x, filter_fn) {
   old_category <- class(x)[1]
 
-  res <- filter(x)
+  res <- filter_fn(x)
   new_category <- class(res)[1]
 
   if (is.null(res)) {

@@ -511,16 +511,16 @@ as_Blockss <- function(x) {
 
 #' @export
 `[[<-.Blocks` <- function(x, name, value) {
-  if (!inherits(value, "Block")) {
-    stop('`value` must be an object of class "Block"')
+  if (! (is.null(value) || inherits(value, "Block")) ) {
+    stop('`value` must be NULL or have class "Block"')
   }
   NextMethod()
 }
 
 #' @export
 `[[<-.Blockss` <- function(x, name, value) {
-  if (!inherits(value, "Blocks")) {
-    stop('`value` must be an object of class "Blocks"')
+  if (! (is.null(value) || inherits(value, "Blocks")) ) {
+    stop('`value` must be NULL or have class "Blocks"')
   }
   NextMethod()
 }
@@ -670,16 +670,16 @@ as_Inliness <- function(inliness) {
 
 #' @export
 `[[<-.Inlines` <- function(x, name, value) {
-  if (!inherits(value, "Inline")) {
-    stop('`value` must be an object of class "Inline"')
+  if (! (is.null(value) || inherits(value, "Inline")) ) {
+    stop('`value` must be NULL or have class "Inline"')
   }
   NextMethod()
 }
 
 #' @export
 `[[<-.Inliness` <- function(x, name, value) {
-  if (!inherits(value, "Inlines")) {
-    stop('`value` must be an object of class "Inlines"')
+  if (! (is.null(value) || inherits(value, "Inlines")) ) {
+    stop('`value` must be NULL or have class "Inlines"')
   }
   NextMethod()
 }
