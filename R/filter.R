@@ -96,19 +96,29 @@ ast_walk <- function(x, filters, category) {
 
   # Recurse. We don't need to recurse into every possible kind of child list --
   # only the ones listed here.
-  if (x_cat == "Inline" || x_cat == "Block") {
+  if (isTRUE(attr(x, "splice", exact = TRUE))) {
+    # Don't recurse if we're returned an Inlines or Blocks that needs to be
+    # spliced. This is the same behavior as Lua filters. Recursing here can
+    # easily lead to infinite recursion; better to let the user apply a separate
+    # filter if that's what they want to do. Simply return.
+    return(x)
+
+  } else if (x_cat == "Inline" || x_cat == "Block") {
     if (!is.atomic(x$c)) {
       x$c <- ast_walk(x$c, filters, category)
+      x$c <- splice_children(x$c)
     }
 
   } else if (x_cat %in% c("Inlines", "Blocks", "Inliness", "Blockss", "Pandoc", "Meta", "list")) {
     if (!is.atomic(x)) {
       x[] <- lapply(x, ast_walk, filters, category)
+      x <- splice_children(x)
     }
   }
 
   x
 }
+
 
 # Call filter(x), and do some checking on the result.
 # If filter(x) returns NULL, return the original object.
@@ -128,13 +138,63 @@ apply_filter <- function(x, filter_fn) {
     return(res)
 
   } else if (new_category == paste0(old_category, "s")) {
+    if (new_category != "Inlines" && new_category != "Blocks") {
+      stop("Splicing allowed only for Inline and Block elements.")
+    }
+
     # Filter returned a list of input objects, which we need to splice.
-    stop("Splicing lists not implemented yet.")
+    attr(res, "splice") <- TRUE
+    return(res)
   }
 
   stop('Category of returned object does not match. Original: "',
     old_category, '"  New: "', new_category, '"'
   )
+}
+
+
+# Given an object like this, where the child Inlines() is marked with the
+# "splice" attribute:
+#   Inlines(
+#     Str("A"),
+#     Inlines(Str("B"), Str("C")),
+#     Str("D")
+#   )
+#
+# Unwrap any such children and return:
+#   Inlines(Str("A"), Str("B"), Str("C"), Str("D"))
+#
+# Note that the example can't be constructed by running that code because of
+# type checks; but it can be constructed by running a filter.
+splice_children <- function(x) {
+  # Check if any of the children need to be spliced into this
+  splice_idx <- vapply(
+    x,
+    function(y) attr(y, "splice", exact = TRUE) %||% FALSE,
+    TRUE
+  )
+
+  if (any(splice_idx)) {
+    old_contents <- x
+    new_contents <- list()
+    class(new_contents) <- class(old_contents)
+    j <- 0
+    for (i in seq_along(old_contents)) {
+      if (isTRUE(attr(old_contents[[i]], "splice", exact = TRUE))) {
+        n <- length(old_contents[[i]])
+        new_contents[j + seq_len(n)] <- old_contents[[i]]
+        j <- j + n
+
+      } else {
+        new_contents[[j + 1]] <- old_contents[[i]]
+        j <- j + 1
+      }
+    }
+
+    x <- new_contents
+  }
+
+  x
 }
 
 
