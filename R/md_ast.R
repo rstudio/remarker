@@ -16,6 +16,9 @@ md_ast <- function(file = NULL, text = NULL, collapse_strings = TRUE, classify =
   if (!xor(is.null(file), is.null(text))) {
     stop("Must have exactly one of `file` or `text`.")
   }
+  if (!is.null(file) && !is_string(file)) {
+    stop("`file` must be a filename.")
+  }
 
   args <- c(
     "-f", pandoc_markdown_format,
