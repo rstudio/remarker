@@ -86,12 +86,10 @@ ast_walk <- function(x, filters, category) {
       filter_fn <- filters[[category]]
     }
 
-    if (is.null(filter_fn)) {
-      return(x)
+    if (!is.null(filter_fn)) {
+      # We have a filter function for this element.
+      x <- apply_filter(x, filter_fn)
     }
-
-    # If we get here, we have a filter function for this element.
-    x <- apply_filter(x, filter_fn)
   }
 
   # Recurse. We don't need to recurse into every possible kind of child list --
