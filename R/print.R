@@ -114,7 +114,11 @@ print.integer <- function(x, ..., branches = character(0), branch_label = NULL) 
   cat0("\n", indent_string(branches, branch_label), crayon::green(x))
 }
 
-print.numeric <- print.character
+print.numeric <- print.integer
+
+print.NULL <- function(x, ..., branches = character(0), branch_label = NULL) {
+  cat0("\n", indent_string(branches, branch_label), crayon::green("NULL"))
+}
 
 print.list <- print.Element
 
