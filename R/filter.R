@@ -167,34 +167,39 @@ apply_filter <- function(x, filter_fn) {
 # Note that the example can't be constructed by running that code because of
 # type checks; but it can be constructed by running a filter.
 splice_children <- function(x) {
-  # Check if any of the children need to be spliced into this
-  splice_idx <- vapply(
-    x,
-    function(y) attr(y, "splice", exact = TRUE) %||% FALSE,
-    TRUE
-  )
-
-  if (any(splice_idx)) {
-    old_contents <- x
-    new_contents <- list()
-    class(new_contents) <- class(old_contents)
-    j <- 0
-    for (i in seq_along(old_contents)) {
-      if (isTRUE(attr(old_contents[[i]], "splice", exact = TRUE))) {
-        n <- length(old_contents[[i]])
-        new_contents[j + seq_len(n)] <- old_contents[[i]]
-        j <- j + n
-
-      } else {
-        new_contents[[j + 1]] <- old_contents[[i]]
-        j <- j + 1
-      }
+  needs_splice <- FALSE
+  # Check if any of the children need to be spliced into this.
+  for (xi in x) {
+    if (attr(xi, "splice", exact = TRUE) %||% FALSE) {
+      needs_splice <- TRUE
+      break
     }
-
-    x <- new_contents
   }
 
-  x
+  if (!needs_splice) {
+    return(x)
+  }
+
+  # If we got here, it needs splicing. This will grow x_new in a loop, which
+  # fortunately, is reasonably fast as of R 3.4. In the future, this could
+  # potentially be sped up more by using rle() so that multiple items in the
+  # else condition would be assigned at once.
+  x_new <- list()
+  class(x_new) <- class(x)
+  j <- 0
+  for (i in seq_along(x)) {
+    if (isTRUE(attr(x[[i]], "splice", exact = TRUE))) {
+      n <- length(x[[i]])
+      x_new[j + seq_len(n)] <- x[[i]]
+      j <- j + n
+
+    } else {
+      x_new[[j + 1]] <- x[[i]]
+      j <- j + 1
+    }
+  }
+
+  x_new
 }
 
 
