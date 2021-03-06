@@ -716,7 +716,8 @@ Link <- function(content, target, title = "", attr = Attr()) {
 }
 
 #' @export
-Math <- function(mathtype, text) {
+Math_ <- function(mathtype, text) {
+  # Renamed so as not to conflict with methods::Math
   stop("Not yet implemented")
 }
 
