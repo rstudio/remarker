@@ -20,37 +20,37 @@ ast_filter <- function(x, ...) {
   #   list(Para = f, Str = f)
   # )
 
-  for (filters_set in filters) {
-    # `filters_set` is something like:
+  for (filter_set in filters) {
+    # `filter_set` is something like:
     #   list(Str = f, Inlines = f, Emph = f)
 
-    filters_set <- categorize_filters(filters_set)
-    # `filters_set` is something like:
+    filter_set <- categorize_filters(filter_set)
+    # `filter_set` is something like:
     # list(
     #   Inline = list(Str = f, Emph = f),
     #   Inlines = list(Inlines = f),
     #   Block = list(), Blocks = list(), Meta = list(), Pandoc = list()
     # )
 
-    for (i in seq_along(filters_set)) {
-      category <- names(filters_set)[i]
-      filters_set_category <- filters_set[[i]]
-      # `category` is something like "Inline"
-      # `filters_set_category` is something like list(Str = f, Emph = f)
+    for (i in seq_along(filter_set)) {
+      filter_category <- names(filter_set)[i]
+      filters_category_fns <- filter_set[[i]]
+      # `filter_category` is something like "Inline"
+      # `filters_category_set` is something like list(Str = f, Emph = f)
 
-      if (category == "Pandoc") {
+      if (filter_category == "Pandoc") {
         # Pandoc and Meta are special-cased; Pandoc only operates on the top-level
         # object, and Meta only operates on the $meta field, so no need to
         # walk the tree.
-        if (length(filters_set_category) != 0) {
-          x <- apply_filter(x, filters_set_category$Pandoc)
+        if (length(filters_category_fns) != 0) {
+          x <- apply_filter(x, filters_category_fns$Pandoc)
         }
-      } else if (category == "Meta") {
-        if (length(filters_set_category) != 0) {
-          x$meta <- apply_filter(x$meta, filters_set_category$Meta)
+      } else if (filter_category == "Meta") {
+        if (length(filters_category_fns) != 0) {
+          x$meta <- apply_filter(x$meta, filters_category_fns$Meta)
         }
       } else {
-        x <- ast_walk(x, filters_set_category, category)
+        x <- ast_walk(x, filters_category_fns, filter_category)
       }
     }
   }
@@ -60,7 +60,7 @@ ast_filter <- function(x, ...) {
 
 
 # Walk the ast with each type of filter (Inline, Inlies
-ast_walk <- function(x, filters, category) {
+ast_walk <- function(x, filters, filter_category) {
   if (length(filters) == 0) {
     return(x)
   }
@@ -68,8 +68,8 @@ ast_walk <- function(x, filters, category) {
   # "Block", "Inline", "Blocks", "Inlines", "Attr", etc.
   x_cat <- class(x)[1]
 
-  if (x_cat == category) {
-    if (category == "Block" || category == "Inline") {
+  if (x_cat == filter_category) {
+    if (filter_category == "Block" || filter_category == "Inline") {
       # "Str", "Para", etc.
       type <- x[["t"]]
 
@@ -79,11 +79,11 @@ ast_walk <- function(x, filters, category) {
       # Fall back to "Inline" or "Block" filters, if more specific filter (like
       # "Str" or "Para") is not present.
       if (is.null(filter_fn)) {
-        filter_fn <- filters[[category]]
+        filter_fn <- filters[[filter_category]]
       }
 
-    } else if (category == "Blocks" || category == "Inlines") {
-      filter_fn <- filters[[category]]
+    } else if (filter_category == "Blocks" || filter_category == "Inlines") {
+      filter_fn <- filters[[filter_category]]
     }
 
     if (!is.null(filter_fn)) {
@@ -103,13 +103,13 @@ ast_walk <- function(x, filters, category) {
 
   } else if (x_cat == "Inline" || x_cat == "Block") {
     if (!is.atomic(x$c)) {
-      x$c <- ast_walk(x$c, filters, category)
+      x$c <- ast_walk(x$c, filters, filter_category)
       x$c <- splice_children(x$c)
     }
 
   } else if (x_cat %in% c("Inlines", "Blocks", "Inliness", "Blockss", "Pandoc", "Meta", "list")) {
     if (!is.atomic(x)) {
-      x[] <- lapply(x, ast_walk, filters, category)
+      x[] <- lapply(x, ast_walk, filters, filter_category)
       x <- splice_children(x)
     }
   }
