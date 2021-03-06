@@ -1,24 +1,57 @@
 #' @export
-ast_filter <- function(x, filters) {
-  filters <- categorize_filters(filters)
+ast_filter <- function(x, ...) {
+  if (!inherits(x, "Pandoc")) {
+    stop("`x` must be an object of class Pandoc")
+  }
 
-  for (i in seq_along(filters)) {
-    filter_set <- filters[[i]]
-    category <- names(filters)[i]
+  filters <- list(...)
 
-    if (category == "Pandoc") {
-      # Pandoc and Meta are special-cased; Pandoc only operates on the top-level
-      # object, and Meta only operates on the $meta field, so no need to
-      # walk the tree.
-      if (length(filter_set) != 0) {
-        x <- apply_filter(x, filter_set$Pandoc)
+  if (!is_all_named(filters) && !is_unnamed(filters)) {
+    stop("ast_filter() arguments must either all be named functions, or unnamed lists of named functions.")
+  }
+
+  if (is_all_named(filters)) {
+    filters <- list(filters)
+  }
+
+  # At this point, `filters` should have the structure:
+  # list(
+  #   list(Str = f, Inlines = f, Emph = f),
+  #   list(Para = f, Str = f)
+  # )
+
+  for (filters_set in filters) {
+    # `filters_set` is something like:
+    #   list(Str = f, Inlines = f, Emph = f)
+
+    filters_set <- categorize_filters(filters_set)
+    # `filters_set` is something like:
+    # list(
+    #   Inline = list(Str = f, Emph = f),
+    #   Inlines = list(Inlines = f),
+    #   Block = list(), Blocks = list(), Meta = list(), Pandoc = list()
+    # )
+
+    for (i in seq_along(filters_set)) {
+      category <- names(filters_set)[i]
+      filters_set_category <- filters_set[[i]]
+      # `category` is something like "Inline"
+      # `filters_set_category` is something like list(Str = f, Emph = f)
+
+      if (category == "Pandoc") {
+        # Pandoc and Meta are special-cased; Pandoc only operates on the top-level
+        # object, and Meta only operates on the $meta field, so no need to
+        # walk the tree.
+        if (length(filters_set_category) != 0) {
+          x <- apply_filter(x, filters_set_category$Pandoc)
+        }
+      } else if (category == "Meta") {
+        if (length(filters_set_category) != 0) {
+          x$meta <- apply_filter(x$meta, filters_set_category$Meta)
+        }
+      } else {
+        x <- ast_walk(x, filters_set_category, category)
       }
-    } else if (category == "Meta") {
-      if (length(filter_set) != 0) {
-        x$meta <- apply_filter(x$meta, filter_set$Meta)
-      }
-    } else {
-      x <- ast_walk(x, filter_set, category)
     }
   }
 
