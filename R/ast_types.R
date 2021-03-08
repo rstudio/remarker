@@ -182,6 +182,16 @@ ast_types <- list(
     category = "Inline",
     children = list("Inlines")
   ),
+  Superscript = list(
+    structure = "tc",
+    category = "Inline",
+    children = list("Inlines")
+  ),
+  Underline = list(
+    structure = "tc",
+    category = "Inline",
+    children = list("Inlines")
+  ),
 
   Inlines = list(
     structure = "list",
@@ -300,7 +310,7 @@ ast_types <- list(
   ),
   TableFoot = list(
     structure = "list",
-    category = "TableHead",
+    category = "TableFoot",
     children = list("Attr", "Rows")
   ),
   TableHead = list(
@@ -527,32 +537,32 @@ as_Blockss <- function(x) {
 
 
 #' @export
-BlockQuote <- function(content) {
+BlockQuote <- function(content = Blocks()) {
   Element("BlockQuote", content)
 }
 
 #' @export
-BulletList <- function(content) {
+BulletList <- function(content = Blockss()) {
   Element("BulletList", content)
 }
 
 #' @export
-CodeBlock <- function(text, attr = Attr()) {
+CodeBlock <- function(text = "", attr = Attr()) {
   Element("CodeBlock", attr, text)
 }
 
 #' @export
-DefinitionList <- function(content) {
-  stop("Not yet implemented")
+DefinitionList <- function(content = InlineBlockss_s()) {
+  Element("DefinitionList", content)
 }
 
 #' @export
-Div <- function(content, attr = Attr()) {
+Div <- function(content = Blocks(), attr = Attr()) {
   Element("Div", attr, content)
 }
 
 #' @export
-Header <- function(level, content, attr = Attr()) {
+Header <- function(level = 1L, content = Inlines(), attr = Attr()) {
   Element("Header", level, attr, content)
 }
 
@@ -562,7 +572,7 @@ HorizontalRule <- function() {
 }
 
 #' @export
-LineBlock <- function(content) {
+LineBlock <- function(content = Inliness()) {
   Element("LineBlock", content)
 }
 
@@ -572,27 +582,30 @@ Null <- function() {
 }
 
 #' @export
-OrderedList <- function(items, listAttributes) {
+OrderedList <- function(items = Blockss(), listAttributes = ListAttributes()) {
   Element("OrderedList", listAttributes, items)
 }
 
 #' @export
-Para <- function(content) {
+Para <- function(content = Inlines()) {
   Element("Para", content)
 }
 
 #' @export
-Plain <- function(content) {
+Plain <- function(content = Inlines()) {
   Element("Plain", content)
 }
 
 #' @export
-RawBlock <- function(text, format) {
+RawBlock <- function(text = "", format = "") {
   Element("RawBlock", format, text)
 }
 
 #' @export
-Table <- function(caption = Caption(), colspecs, head, bodies, foot, attr = Attr()) {
+Table <- function(caption = Caption(), colspecs = ColSpecs(),
+  head = TableHead(), bodies = TableBodys(), foot = TableFoot(),
+  attr = Attr())
+{
   Element("Table", attr, caption, colspecs, head, bodies, foot)
 }
 
@@ -686,22 +699,22 @@ as_Inliness <- function(inliness) {
 
 
 #' @export
-Cite <- function(content, citations) {
+Cite <- function(content = Inlines(), citations = Citations()) {
   Element("Cite", citations, content)
 }
 
 #' @export
-Code <- function(text, attr = Attr()) {
+Code <- function(text = "", attr = Attr()) {
   Element("Code", attr, text)
 }
 
 #' @export
-Emph <- function(content) {
+Emph <- function(content = Inlines()) {
   Element("Emph", content)
 }
 
 #' @export
-Image <- function(caption = list(), src, title = "", attr = Attr()) {
+Image <- function(caption = Inlines(), src = "", title = "", attr = Attr()) {
   Element("Image", attr, caption, Target(src, title))
 }
 
@@ -711,33 +724,34 @@ LineBreak <- function() {
 }
 
 #' @export
-Link <- function(content, target, title = "", attr = Attr()) {
+Link <- function(content = Inlines(), target = "", title = "", attr = Attr()) {
   Element("Link", attr, content, Target(target, title))
 }
 
+#'
 #' @export
-Math_ <- function(mathtype, text) {
+Math_ <- function(mathtype = "DisplayMath", text = "") {
   # Renamed so as not to conflict with methods::Math
   stop("Not yet implemented")
 }
 
 #' @export
-Note <- function(content) {
+Note <- function(content = Blocks()) {
   Element("Note", content)
 }
 
 #' @export
-Quoted <- function(quotetype, content) {
+Quoted <- function(quotetype = QuoteType(), content = Inlines()) {
   Element("Quoted", quotetype, content)
 }
 
 #' @export
-RawInline <- function(format, text) {
+RawInline <- function(format = "", text = "") {
   Element("RawInline", format, text)
 }
 
 #' @export
-SmallCaps <- function(content) {
+SmallCaps <- function(content = Inlines()) {
   Element("SmallCaps", content)
 }
 
@@ -752,37 +766,37 @@ Space <- function() {
 }
 
 #' @export
-Span <- function(content, attr = Attr()) {
+Span <- function(content = Inlines(), attr = Attr()) {
   Element("Span", attr, content)
 }
 
 #' @export
-Str <- function(text) {
+Str <- function(text = "") {
   Element("Str", text)
 }
 
 #' @export
-Strikeout <- function(content) {
+Strikeout <- function(content = Inlines()) {
   Element("Strikeout", content)
 }
 
 #' @export
-Strong <- function(content) {
+Strong <- function(content = Inlines()) {
   Element("Strong", content)
 }
 
 #' @export
-Subscript <- function(content) {
+Subscript <- function(content = Inlines()) {
   Element("Subscript", content)
 }
 
 #' @export
-Superscript <- function(content) {
+Superscript <- function(content = Inlines()) {
   Element("Superscript", content)
 }
 
 #' @export
-Underline <- function(content) {
+Underline <- function(content = Inlines()) {
   Element("Underline", content)
 }
 
@@ -813,7 +827,7 @@ as_Alignment <- function(x) {
 
 
 #' @export
-Attr <- function(identifier = "", classes = list(), attributes = list()) {
+Attr <- function(identifier = "", classes = Texts(), attributes = TextText_s()) {
   Element("Attr", identifier, classes, attributes)
 }
 
@@ -836,7 +850,7 @@ as_Attr <- function(x) {
 }
 
 #' @export
-Caption <- function(long = NULL, short = NULL) {
+Caption <- function(long = NULL, short = Inlines()) {
   Element("Caption", long, short)
 }
 
@@ -849,6 +863,20 @@ as_Caption <- function(x) {
   }
   do.call(Caption, x)
 }
+
+
+#' @export
+Cell <- function(attr = Attr(), alignment = Alignment(),
+  colspan = 1L, rowspan = 1L, contents = Blocks())
+{
+  Element("Cell", attr, alignment, rowspan, colspan, contents)
+}
+
+#' @export
+Cells <- function(...) {
+  Element("Cells", ...)
+}
+
 
 #' @export
 ColSpec <- function(alignment = Alignment(), colwidth = ColWidth()) {
@@ -866,6 +894,14 @@ as_ColSpec <- function(x) {
 ColSpecs <- function(...) {
   Element("ColSpecs", ...)
 }
+
+as_ColSpecs <- function(x) {
+  if (inherits(x, "ColSpecs")) {
+    return(x)
+  }
+  stop("`x` cannot be coerced to a ColSpecs")
+}
+
 
 validate_colspecs <- function(colspecs) {
   if ( !(is.null(colspecs) || is_unnamed_list(colspecs)) ) {
@@ -908,8 +944,8 @@ as_ColWidth <- function(x) {
 }
 
 #' @export
-DefinitionList <- function(content) {
-  Element("DefinitionList", content)
+InlinesBlockss <- function(inlines = Inlines(), blockss = Blockss()) {
+  Element("InlinesBlockss", inlines, blockss)
 }
 
 as_InlinesBlockss <- function(x) {
@@ -925,6 +961,11 @@ as_InlinesBlockss <- function(x) {
   x[[2]] <- as_Blockss(x[[2]])
   class(x) <- c("InlinesBlockss", "Element")
   x
+}
+
+#' @export
+InlinesBlockss_s <- function(...) {
+  Element("InlinesBlockss_s", ...)
 }
 
 as_InlinesBlockss_s <- function(x) {
@@ -943,7 +984,7 @@ as_InlinesBlockss_s <- function(x) {
 
 # TODO: Add default enum values to args
 #' @export
-QuoteType <- function(quotetype) {
+QuoteType <- function(quotetype = "SingleQuote") {
   Element("QuoteType", quotetype)
 }
 
@@ -962,7 +1003,9 @@ as_QuoteType <- function(x) {
 }
 
 #' @export
-ListAttributes <- function(start, style, delimiter) {
+ListAttributes <- function(start = 1L, style = "DefaultStyle",
+  delimiter = "DefaultDelim")
+{
   stopifnot(is_numeric(start))
   stopifnot(style %in% c("DefaultStyle", "Example", "Decimal", "LowerRoman",
                          "UpperRoman", "LowerAlpha", "UpperAlpha"))
@@ -983,7 +1026,91 @@ as_ListAttributes <- function(x) {
 }
 
 #' @export
-Target <- function(url, title) {
+Row <- function(cells = Cells(), attr = Attr()) {
+  Element("Row", attr, cells)
+}
+
+as_Row <- function(x) {
+  if (inherits(x, "Row")) {
+    return(x)
+  }
+  stop("`x` cannot be coerced to a Row")
+}
+
+
+#' @export
+Rows <- function(...) {
+  Element("Rows", ...)
+}
+
+as_Rows <- function(x) {
+  if (inherits(x, "Rows")) {
+    return(x)
+  }
+  stop("`x` cannot be coerced to a Rows")
+}
+
+#' @export
+TableBody <- function(rowheadcolumns = 1L, head = Rows(), body = Rows(),
+  attr = Attr())
+{
+  Element("TableBody", attr, rowheadcolumns, head, body)
+}
+
+#' @export
+TableBodys <- function(...) {
+  Element("TableBodys", ...)
+}
+
+as_TableBody <- function(x) {
+  if (inherits(x, "TableBody")) {
+    return(x)
+  }
+  stop("`x` cannot be coerced to a TableBody")
+}
+
+
+#' @export
+TableBodys <- function(...) {
+  Element("TableBodys", ...)
+}
+
+as_TableBodys <- function(x) {
+  if (inherits(x, "TableBodys")) {
+    return(x)
+  }
+  stop("`x` cannot be coerced to a TableBodys")
+}
+
+
+#' @export
+TableHead <- function(rows = Rows(), attr = Attr()) {
+  Element("TableHead", attr, rows)
+}
+
+as_TableHead <- function(x) {
+  if (inherits(x, "TableHead")) {
+    return(x)
+  }
+  stop("`x` cannot be coerced to a TableHead")
+}
+
+
+#' @export
+TableFoot <- function(rows = Rows(), attr = Attr()) {
+  Element("TableFoot", attr, rows)
+}
+
+as_TableFoot <- function(x) {
+  if (inherits(x, "TableFoot")) {
+    return(x)
+  }
+  stop("`x` cannot be coerced to a TableFoot")
+}
+
+
+#' @export
+Target <- function(url = "", title = "") {
   Element("Target", url, title)
 }
 
@@ -1003,6 +1130,11 @@ as_Target <- function(x) {
   stop("`x` cannot be coerced to a Target")
 }
 
+
+# =====================================================================
+# Atomic types
+# =====================================================================
+
 as_Double <- function(x) {
   if (!is_numeric(x)) stop("x must be a number")
   x
@@ -1013,12 +1145,25 @@ as_Int <- function(x) {
   as.integer(x)
 }
 
+as_ColSpan <- as_Int
+
+as_RowSpan <- as_Int
+
+as_RowHeadColumns <- as_Int
+
+
 as_Text <- function(x) {
   if (!is_string(x)) stop("x must be a string")
   x
 }
 
 as_Format <- as_Text
+
+
+#' @export
+Texts <- function(...) {
+  Element("Texts", ...)
+}
 
 # Converts input to list of single strings
 # Input can be:
@@ -1038,6 +1183,26 @@ as_Texts <- function(x) {
   }
 
   stop("`x` cannot be coerced to a list of strings")
+}
+
+
+as_TextText <- function(x) {
+  if (inherits(x, "TextText")) {
+    return(x)
+  }
+
+  if (is.list(x) && length(x) == 2) {
+    class(x) <- c("TextText", "Element")
+    return(x)
+  }
+
+  stop("`x` cannot be coerced to a TextText")
+}
+
+
+#' @export
+TextText_s <- function(...) {
+  Element("TextText_s", ...)
 }
 
 # Input can be one of three forms:
