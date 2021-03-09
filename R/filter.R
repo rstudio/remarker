@@ -1,4 +1,12 @@
 #' @export
+script_filter <- function(..., input = file("stdin", open = "rb")) {
+  ast <- json_ast(input)
+  ast <- ast_filter(ast, ...)
+  ast_json(ast)
+}
+
+
+#' @export
 ast_filter <- function(x, ...) {
   if (!inherits(x, "Pandoc")) {
     stop("`x` must be an object of class Pandoc")
