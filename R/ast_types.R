@@ -922,7 +922,7 @@ ColWidth <- function(colwidth = NULL) {
     # This is the one case where we can't call Element(), because the type spec
     # doesn't adequately describe the two different possible structures for
     # ColWidth objects.
-    add_class(
+    set_class(
       list(t = "ColWidthDefault"),
       c("ColWidth", "Element")
     )
@@ -1011,7 +1011,7 @@ ListAttributes <- function(start = 1L, style = "DefaultStyle",
                          "UpperRoman", "LowerAlpha", "UpperAlpha"))
   stopifnot(delimiter %in% c("DefaultDelim", "Period", "OneParen", "TwoParens"))
 
-  add_class(
+  set_class(
     list(as.integer(start), list(t = style), list(t = delimiter)),
     c("ListAttributes", "Element")
   )
@@ -1124,7 +1124,7 @@ as_Target <- function(x) {
   if (is_unnamed_list(x) && length(x) == 2 &&
       is_string(x[[1]]) && is_string(x[[2]]) )
   {
-    return(add_class(x, "Target"))
+    return(set_class(x, "Target"))
   }
 
   stop("`x` cannot be coerced to a Target")

@@ -4,11 +4,6 @@
   if (is.null(a)) b else a
 }
 
-add_class <- function(x, class) {
-  class(x) <- class
-  x
-}
-
 map <- function(.x, .f, ...) {
   lapply(.x, .f, ...)
 }
@@ -48,3 +43,8 @@ named_chr_val <- structure(character(0), .Names = character(0))
 named_list <- function() named_list_val
 
 named_list_val <- structure(list(), .Names = character(0))
+
+set_class <- function(x, class) {
+  class(x) <- class
+  x
+}

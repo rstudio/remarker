@@ -15,7 +15,7 @@ ast_ir <- function(x) {
 
   x <- process_type(x, "Pandoc")
 
-  add_class(
+  set_class(
     list(
       meta = x$meta,
       content = group_sections(x$blocks)

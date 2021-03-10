@@ -1,5 +1,5 @@
 # @staticimports
-#  add_class
+#  set_class
 #  map map2 map_chr map_lgl map_int
 #  named_list named_chr
 #  %||%

@@ -39,7 +39,7 @@ json_ast <- function(ast_json, classify = TRUE) {
   if (classify) {
     ast$blocks <- classify(ast$blocks, "Blocks")
   }
-  add_class(ast,  "Pandoc")
+  set_class(ast,  "Pandoc")
 }
 
 
