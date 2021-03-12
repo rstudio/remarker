@@ -372,6 +372,15 @@ ast_types <- list(
     structure = "atomic",
     category = "atomic",
     children = list()
+  ),
+
+  # =====================================================================
+  # Custom types - not standard Pandoc AST
+  # =====================================================================
+  NestedSection = list(
+    structure = "tc",
+    category = "Block",
+    children = list("Block", "Blocks")
   )
 )
 
@@ -1235,4 +1244,22 @@ as_TextText_s <- function(x) {
   }
 
   stop("`x` cannot be coerced to an unnamed list of unnamed lists, each with two strings")
+}
+
+
+
+# =====================================================================
+# Custom types
+# =====================================================================
+
+#' @export
+NestedSection <- function(header = Header(), content = Blocks()) {
+  Element("NestedSection", header, content)
+}
+
+as_NestedSection <- function(x) {
+  if (inherits(x, "NestedSection")) {
+    return(x)
+  }
+  stop("Can't coerce x to a NestedSections object")
 }
