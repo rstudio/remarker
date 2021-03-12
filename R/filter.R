@@ -1,11 +1,87 @@
+#' Apply filters in a script
+#'
+#' Read Pandoc AST (as JSON), apply filters, and then write the output.
+#' Normally, this function is used in scripts, and the input and output are
+#' stdin and stdout.
+#'
+#' Below is an example script
+
+#'
+#' ```
+#' library(remarker)
+#'
+#' script_filter(
+#'   Str = function(x) {
+#'     if (x$c == "{{helloworld_r}}") {
+#'       Emph(Inlines(Str("Hello, world (R)")))
+#'     }
+#'   }
+#' )
+#' ```
+
+#'
+#' @param input A connection or filename. Note that the default, `file("stdin",
+#'   open="rb")`, differs from `stdin()`. The former reads from the C-level
+#'   stdin, so it will read data piped to the R process; the latter reads from
+#'   the console input, and may not read from data piped to the process.
+#' @param output Output connection or filename. Defaults to `stdout()`.
+#'
 #' @export
-script_filter <- function(..., input = file("stdin", open = "rb")) {
+script_filter <- function(
+  ...,
+  input = file("stdin", open = "rb"),
+  output = stdout()
+) {
   ast <- json_ast(input)
   ast <- ast_filter(ast, ...)
-  ast_json(ast)
+  json <- ast_json(ast)
+  cat(json, file = output)
 }
 
 
+#' Apply filters to a Pandoc object
+#'
+#'
+#'
+#' @param x a Pandoc object.
+#' @param ... Named filter functions, or (unnamed) lists of named filter
+#'   functions.
+#'
+#' @examples
+#'
+#' # Read in some Markdown content from a string
+#' ast <- md_ast(text = "
+#' ## This is a section
+#'
+#' Some *text* in a *paragraph*.
+#'
+#' ### A subsection
+#'
+#' * A bullet item
+#' * Another bullet item
+#' ")
+#'
+#' # Print AST
+#' ast
+#'
+#' # Apply filters
+#' ast <- ast_filter(ast,
+#'   # Convert strings to upper case
+#'   Str = function(x) {
+#'     x$c <- tolower(x$c)
+#'     x
+#'   },
+#'   # Convert italic text to bold
+#'   Emph = function(x) {
+#'     Strong(x$c)
+#'   }
+#' )
+#'
+#' # Print AST again
+#'
+#' # Convert to Markdown (printed at console)
+#' ast_md(ast)
+#'
 #' @export
 ast_filter <- function(x, ...) {
   if (!inherits(x, "Pandoc")) {
