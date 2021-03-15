@@ -32,20 +32,20 @@ nest_sections <- function(x) {
         section_start_idx <- i
       }
 
-    } else if (cur_depth <= min_depth || i == length(x)) {
-      # Enter into here when we hit a header that has lower number (which is a
-      # "higher-level" header), or when we hit the last block.
+    } else if (i == length(x) || (i < length(x) && depth(x[[i+1L]]) <= min_depth)) {
+      # Enter into here when the next element is a header with a lower number
+      # (i.e., a "higher-level" header), or when we hit the last block.
 
-      # The previous section has ended.
+      # This is the end of this section.
       res[[length(res) + 1]] <- NestedSection(
         # Header block
         x[[section_start_idx]],
         # All the remaining blocks until the next section
-        nest_sections(x[seq(section_start_idx+1, i-1)])
+        nest_sections(x[seq(section_start_idx+1, i)])
       )
 
-      # This block is the start of a new section
-      section_start_idx <- i
+      # Next block is the start of a new section
+      section_start_idx <- i + 1
     }
 
     if (cur_depth < min_depth) {
@@ -65,6 +65,8 @@ unnest_sections <- function(x) {
   }
 
   if (inherits(x, "Blocks")) {
+    if (length(x) == 0) return(x)
+
     res <- lapply(x, unnest_sections)
     res <- unlist(res, recursive = FALSE)
     res <- do.call(Blocks, res)
