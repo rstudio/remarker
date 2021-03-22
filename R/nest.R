@@ -36,12 +36,18 @@ nest_sections <- function(x) {
       # Enter into here when the next element is a header with a lower number
       # (i.e., a "higher-level" header), or when we hit the last block.
 
+      if (i > section_start_idx) {
+        children_idxs <- seq(section_start_idx+1, i)
+      } else {
+        children_idxs <- i
+      }
+
       # This is the end of this section.
       res[[length(res) + 1]] <- NestedSection(
         # Header block
         x[[section_start_idx]],
         # All the remaining blocks until the next section
-        nest_sections(x[seq(section_start_idx+1, i)])
+        nest_sections(x[children_idxs])
       )
 
       # Next block is the start of a new section

@@ -3,7 +3,8 @@ pandoc_markdown_format <- paste0(
   "+backtick_code_blocks",
   "+fenced_code_attributes",
   "+yaml_metadata_block",
-  "-hard_line_breaks"
+  "-hard_line_breaks",
+  "+raw_html"
 )
 
 #' Read in Markdown content and return the Pandoc AST
@@ -70,4 +71,26 @@ ast_md <- function(x, outfile = NULL) {
 #' @export
 ast_json <- function(x) {
   jsonlite::toJSON(unclass_recursive(x), auto_unbox = TRUE)
+}
+
+
+#' @export
+ast_html <- function(x, outfile = NULL) {
+  stopifnot(inherits(x, "Pandoc"))
+  stopifnot(is.null(outfile) || is_string(outfile))
+
+  tmpfile_json <- tempfile()
+  json <- jsonlite::toJSON(unclass_recursive(x), auto_unbox = TRUE)
+  writeLines(json, tmpfile_json)
+  system2(
+    "pandoc",
+    args = c(
+      "-f", "json",
+      "-t", "html",
+      "--wrap=preserve",
+      tmpfile_json,
+      if (!is.null(outfile)) c("-o", outfile)
+    ),
+    stdout = if (is.null(outfile)) TRUE else ""
+  )
 }

@@ -2,6 +2,10 @@
 # AST type definitions
 # ======================================================================
 
+# Derived from:
+# https://hackage.haskell.org/package/pandoc-types-1.22/docs/Text-Pandoc-Definition.html
+# https://pandoc.org/lua-filters.html
+
 ast_types <- list(
   # ====================================================================
   # Block elements
@@ -354,6 +358,11 @@ ast_types <- list(
   ),
   ColSpan = list(
     # TODO: This is basically an alias for Int - make that work, as well
+    structure = "atomic",
+    category = "atomic",
+    children = list()
+  ),
+  Format = list(
     structure = "atomic",
     category = "atomic",
     children = list()

@@ -145,7 +145,7 @@ Plain <- function(content = Inlines()) {
 }
 
 #' @export
-RawBlock <- function(text = "", format = "") {
+RawBlock <- function(format = "", text = "") {
   Element("RawBlock", format, text)
 }
 
