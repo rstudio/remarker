@@ -30,3 +30,6 @@ script_filter(
 )
 }
 }
+\seealso{
+\code{\link[=ast_filter]{ast_filter()}} for filtering an existing Pandoc AST object.
+}

@@ -26,6 +26,9 @@
 #'   the console input, and may not read from data piped to the process.
 #' @param output Output connection or filename. Defaults to `stdout()`.
 #'
+#'
+#' @seealso [ast_filter()] for filtering an existing Pandoc AST object.
+#'
 #' @export
 script_filter <- function(
   ...,
@@ -81,6 +84,8 @@ script_filter <- function(
 #'
 #' # Convert to Markdown (printed at console)
 #' ast_md(ast)
+#'
+#' @seealso [script_filter()] for use in a Pandoc script.
 #'
 #' @export
 ast_filter <- function(x, ...) {

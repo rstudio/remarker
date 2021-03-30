@@ -82,7 +82,7 @@ ast_html <- function(x, outfile = NULL) {
   tmpfile_json <- tempfile()
   json <- jsonlite::toJSON(unclass_recursive(x), auto_unbox = TRUE)
   writeLines(json, tmpfile_json)
-  system2(
+  txt <- system2(
     "pandoc",
     args = c(
       "-f", "json",
@@ -93,4 +93,6 @@ ast_html <- function(x, outfile = NULL) {
     ),
     stdout = if (is.null(outfile)) TRUE else ""
   )
+
+  paste(txt, collapse = "")
 }

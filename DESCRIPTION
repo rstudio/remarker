@@ -17,3 +17,7 @@ Imports:
     gridlayout
 Remotes:
     rstudio/gridlayout
+Suggests:
+    htmltools,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

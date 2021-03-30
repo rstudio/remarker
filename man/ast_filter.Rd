@@ -51,3 +51,6 @@ ast <- ast_filter(ast,
 ast_md(ast)
 
 }
+\seealso{
+\code{\link[=script_filter]{script_filter()}} for use in a Pandoc script.
+}
