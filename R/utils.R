@@ -30,3 +30,13 @@ interleave <- function(a, b) {
 
   res
 }
+
+# Convert list/char vector with structure:
+#   list(list("a", "a_val"), list("b", "b_val"))
+# to:
+#   c(a = "a_val", b = "b_val")
+namify <- function(x) {
+  vals        <- vapply(x, `[[`, 2, FUN.VALUE = NA_character_)
+  names(vals) <- vapply(x, `[[`, 1, FUN.VALUE = NA_character_)
+  vals
+}
