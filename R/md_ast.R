@@ -69,8 +69,14 @@ ast_md <- function(x, outfile = NULL) {
 }
 
 #' @export
-ast_json <- function(x) {
-  jsonlite::toJSON(unclass_recursive(x), auto_unbox = TRUE)
+ast_json <- function(x, outfile = NULL) {
+  json <- jsonlite::toJSON(unclass_recursive(x), auto_unbox = TRUE)
+
+  if (is.null(outfile)) {
+    return(json)
+  }
+
+  writeLines(json, outfile)
 }
 
 
