@@ -32,7 +32,7 @@ Header panel content
 
 Text one two three *italic*. Text in 'single quotes', "double quotes".
 
-### {.tabs tabtype="navlistPanel"}
+### {.tabs tabtype="tabsetPanel"}
 
 #### First subsection
 
