@@ -1,0 +1,67 @@
+---
+title: ""
+output:
+  html_document:
+    pandoc_args: !expr 'list(paste0("--filter=", system.file("filters/interactive.R", package="remarker")))'
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(shiny)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+gridlayout::use_gridlayout_rmd()
+```
+
+```{gridlayout}
+|      |        |           |           |
+|------|--------|-----------|-----------|
+|1rem  |200px   |1fr        |1fr        |
+|100px |section-header  |section-header     |section-header     |
+|1fr   |section-sidebar |section-main_panel |section-main_panel |
+|1fr   |section-sidebar |section-main_panel |section-main_panel |
+```
+
+## Header panel {#header}
+
+Header panel content
+
+## Main panel {#main_panel}
+
+Text one two three *italic*. Text in 'single quotes', "double quotes".
+
+### {.tabs}
+
+#### First subsection
+
+Some *text* in a *paragraph*. This section has a bulletted list.
+
+-   A bullet item
+-   Another bullet item
+
+```{r}
+1+1
+```
+
+#### `r icon("calendar")` Second subsection
+
+This is the next subsection.
+
+```{r, echo=FALSE}
+sliderInput("bins", "Number of bins:", min = 1, max = 50, value = 30)
+plotOutput("distPlot")
+```
+
+```{r, context="server"}
+output$distPlot <- renderPlot({
+  x <- faithful[, 2]  # Old Faithful Geyser data
+  bins <- seq(min(x), max(x), length.out = input$bins + 1)
+  hist(x, breaks = bins, col = 'darkgray', border = 'white')
+})
+```
+
+## Sidebar {#sidebar}
+
+sidebar stuff
