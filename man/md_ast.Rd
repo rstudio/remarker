@@ -9,10 +9,14 @@ md_ast(file = NULL, text = NULL, collapse_strings = TRUE, classify = TRUE)
 \arguments{
 \item{file}{A filename. Cannot be used with \code{text}.}
 
-\item{text}{Markdown text. Cannot be used with \code{file}.}
+\item{text}{Markdown text, or a connection object. Cannot be used with
+\code{file}.}
 
 \item{classify}{Add classes}
 }
 \description{
 Read in Markdown content and return the Pandoc AST
+}
+\seealso{
+json_ast
 }

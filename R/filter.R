@@ -35,7 +35,7 @@ script_filter <- function(
   input = file("stdin", open = "rb"),
   output = stdout()
 ) {
-  ast <- json_ast(input)
+  ast <- json_ast(text = input)
   ast <- ast_filter(ast, ...)
   json <- ast_json(ast)
   cat(json, file = output)
