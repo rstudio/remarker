@@ -10,6 +10,19 @@
 # the JSON to a file called ast_in.json, and it will wait for ast_out.json
 # to be created. It will read in ast_out.json and send the contents back to
 # Pandoc.
+#
+# The utility functions remarker::json_ast and remarker::ast_json should be used
+# for parsing and writing out of the new AST. The make sure that the JSON is
+# valid for pandoc's ast format by avoiding class dispatch for native R objects
+# So scripts that use this filter should take the form:
+#
+#   # Make sure you're in correct working directory
+#   x <- json_ast(readLines(file("ast_in.json", open = "rb")))
+#   # Do some manipulation to AST
+#   ...
+#   # Write out ast_out so filter knows to proceed
+#   writeLines(ast_json(x), con = "ast_out.json")
+#
 
 intxt <- readLines(file("stdin", open = "rb"))
 writeLines(intxt, "ast_in.json")
