@@ -19,9 +19,9 @@ gridlayout::use_gridlayout_rmd()
 |      |        |           |           |
 |------|--------|-----------|-----------|
 |1rem  |200px   |1fr        |1fr        |
-|100px |section-header  |section-header     |section-header     |
-|1fr   |section-sidebar |section-main_panel |section-main_panel |
-|1fr   |section-sidebar |section-main_panel |section-main_panel |
+|100px |header  |header     |header     |
+|1fr   |sidebar |main_panel |main_panel |
+|1fr   |sidebar |main_panel |main_panel |
 ```
 
 ## Header panel {#header}
