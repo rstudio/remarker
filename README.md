@@ -4,10 +4,9 @@
 # remarker
 
 <!-- badges: start -->
-<!-- badges: end -->
 
-**Remarker** is an R package for reading in Markdown files, applying
-transformations, and emitting R code to
+[![R-CMD-check](https://github.com/rstudio/remarker/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/remarker/actions)
+<!-- badges: end -->
 
 With remarker, you can write a Shiny application using Markdown, without
 needing the complexity of rmarkdown’s `runtime: shiny` or

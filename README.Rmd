@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 # remarker
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/rstudio/remarker/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/remarker/actions)
 <!-- badges: end -->
 
 **Remarker** is an R package for reading in Markdown files, applying transformations, and emitting R code to 
