@@ -8,11 +8,12 @@
 [![R-CMD-check](https://github.com/rstudio/remarker/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/remarker/actions)
 <!-- badges: end -->
 
-With remarker, you can write a Shiny application using Markdown, without
-needing the complexity of rmarkdown’s `runtime: shiny` or
-`shiny_prerendered`. The transformations will allow the application
-author to modify and restructure objects in the document before they are
-transformed to HTML.
+**Remarker** is an R package which makes it easy to use Pandoc to read
+in Markdown (and other) files, as the Pandoc AST, apply transformations
+(also known as filters) on them, and send the AST back to Pandoc for
+conversion to Markdown, HTML, or other formats. In short, it is an
+implementation of [Pandoc filters](https://pandoc.org/filters.html) in
+R.
 
 ## Installation
 
@@ -25,177 +26,111 @@ remotes::install_github("rstudio/remarker")
 
 ## Overview
 
-Remarker operates in three phases:
+To understand what exactly remarker can do, it is important to
+understand how R Markdown and regular Markdown documents get converted
+to HTML or PDF.
 
--   `md_ast()`: Reads in the Markdown document and converting to the
-    Pandoc AST. This requires Pandoc to be installed.
--   `ast_ir()`: Converts the Pandoc AST to remarker’s intermediate
-    representation (IR), which contains the same information, but in a
-    format that’s more concise and easier to manipulate.
--   `ir_transform()`: Applies user-defined transformations on the IR.
--   `ir_r()`: Converts the IR to R code which uses htmltools to do the
-    HTML markup. This R code can then be executed.
+When you call `rmarkdown::render()`, it does roughly this:
 
-## Examples
+    R Markdown --[knitr]--> Markdown --[Pandoc]--> HTML
 
-### A basic Shiny application
+**knitr** reads in the R Markdown (Rmd) document, extracts R code chunks
+and executes them, and the results are put back into a regular Markdown
+file.
 
-A Markdown file with a basic Shiny application is in
-[inst/examples/shiny\_basic.md](inst/examples/shiny_basic.md). Here’s
-how to read it in and convert it to the R code:
+Then Pandoc reads in the Markdown file and converts it to HTML. To
+expand on this a bit, it reads the Markdown, converts it internally to
+the Pandoc AST (abstract syntax tree), and then the AST is converted to
+HTML.
+
+The Pandoc AST represents the structure of the document. For example, it
+represents headers, paragraphs, and code blocks as objects in the tree.
+The AST is the key data structure in Pandoc – it can convert many input
+file formats to the AST, and it can convert the AST to many output
+formats. These output formats include HTML, LaTeX, Microsft Word, and so
+on.
+
+Remarker provides a set of tools for manipulating the AST in R. This
+allows one to modify and restructure documents programmatically before
+they are converted to the output format. The transformations can be very
+simple, like as converting italicized text to bold text, or they can be
+more sophisticated, as in reordering sections, or inserting arbitrary
+content.
+
+Remarker fits into the toolchain like this:
+
+    R Markdown
+      --[R knitr]--> Markdown
+      --[Pandoc]--> AST (JSON)
+      --[R jsonlite::fromJSON()]--> AST (in R)
+      --[R remarker user-defined transformations]--> AST (in R)
+      --[R jsonlite::toJSON()]--> AST (JSON)
+      --[Pandoc]--> HTML
+
+## How it works
+
+There are two common ways to use remarker. The most common way to use it
+in a Pandoc filter. The other way is to use to manipulate an AST in an
+interactive R session.
+
+### Using remarker as a Pandoc filter
+
+If you are writing an R Markdown .Rmd document (as opposed to a regular
+Markdown .md document), the way to specify a filter is by adding the
+following to the YAML header block:
+
+``` yaml
+output:
+  html_document:
+    pandoc_args: ["--filter=myfilter.R"]'
+```
+
+Note that the path to the filter is relative to the document’s path.
+When `pandoc` is invoked to transform the Markdown to HTML, this means
+it will be called with `--filter=myfilter.R`.
+
+> Note: To use a filter that is part of an R package, you currently need
+> to do something like this (hopefully we’ll find a better way to do
+> it):
+
+    ```YAML
+        pandoc_args: !expr 'list(paste0("--filter=", system.file("filters/tabs.R", package="remarker")))'
+    ```
+
+The filter script should look something like this:
 
 ``` r
 library(remarker)
-md_file <- system.file("examples/shiny_basic.md", package = "remarker")
 
-x <- md_ast(md_file) # Convert Markdown to Pandoc AST
-x1 <- ast_ir(x)      # Convert to remarker IR
-x2 <- ir_r(x1)       # Convert IR to R code
+script_filter(
+  # Convert strings to lower case
+  Str = function(x) {
+    x$c <- tolower(x$c)
+    x
+  },
+  # Convert italic text to bold
+  Emph = function(x) {
+    Strong(x$c)
+  }
+)
 ```
 
-At this point, we can look at the resulting R code by simply printing
-`x2`:
+The API is similar to the [Pandoc Lua filter
+API](https://pandoc.org/lua-filters.html).
 
-``` r
-x2
-#> ====================
-#> UI code
-#> ====================
-#> fluidPage(
-#>   sidebarPanel(
-#>     tagList(
-#>     h2(id = "sidebar", "Sidebar title here"),
-#>     p("Here’s a sentence at the top of the sidebar."),
-#>     {tagList(
-#>   sliderInput("x", "X:", 1, 10, 5)
-#> )},
-#>     hr(),
-#>     p(
-#>       "Here’s more text in the sidebar. And a ",
-#>       code("selectInput"),
-#>       ":"
-#>     ),
-#>     {selectInput("select", "Select:", LETTERS)}
-#>   )
-#>   ),
-#>   mainPanel(
-#>     tagList(
-#>     h2(id = "main_panel", "Hello"),
-#>     p(
-#>       "Here’s some text. Some of it is ",
-#>       tags$i("italic"),
-#>       "; some of it is ",
-#>       tags$b("bold"),
-#>       "; some of it is ",
-#>       code("inlined code"),
-#>       "."
-#>     ),
-#>     {plotOutput("plot")},
-#>     p("This is a description of the plot above: it’s a bunch of points in a line."),
-#>     NULL
-#>   )
-#>   )
-#> )
-#> 
-#> ====================
-#> Server code
-#> ====================
-#> function(input, output, session) {
-#>   output$plot <- renderPlot({
-#>     plot(seq_len(input$x))
-#>   })
-#> }
-```
+### Using remarker interactively
 
-And this can be run as a Shiny application with `app_r()`:
+For interactive use, here is one workflow:
 
-``` r
-app_r(x2)
-```
-
-### A Shiny application with transformations
-
-A Shiny application with transformations is in
-[inst/examples/shiny\_transform.md](inst/examples/shiny_transform.md).
-This has two notable parts.
-
-The first is that the layout is defined as follows:
-
-    ``` {.layout .grid}
-    |      |250px   |1fr        |1fr        |
-    |:-----|:-------|:----------|:----------|
-    |100px |header  |header     |header     |
-    |1fr   |sidebar |main_panel |main_panel |
-    |1fr   |sidebar |main_panel |main_panel |
-    ```
-
-This defines a grid layout. A transformer function converts this into
-the appropriate HTML and CSS for the layout.
-
-The second part of interest is the main panel. It has the class `.card`.
-Remarker has a transformer registered for sections with this class,
-which is explained in the section itself:
-
-    ## Main panel {#main_panel .card}
-
-    This section is transformed into a **card**. The section heading is displayed with `H3` (instead of the normal `H2`), and the entire content is wrapped in a `wellPanel()`.
-
-    ``` {.r .ui}
-    plotOutput("plot")
-    ```
-
-    ``` {.r .server}
-    output$plot <- renderPlot({
-      plot(seq_len(input$x))
-    })
-    ```
-
-The R code for the transformed section looks like this:
-
-``` r
-  mainPanel(
-    tagList(wellPanel(
-      h3(id = "main_panel", "Main panel"),
-      p(
-        "This section is transformed into a ",
-        tags$b("card"),
-        ". The section heading is displayed with ",
-        code("H3"),
-        " (instead of the normal ",
-        code("H2"),
-        "), and the entire content is wrapped in a ",
-        code("wellPanel()"),
-        "."
-      ),
-      {plotOutput("plot")},
-      NULL
-    ))
-  )
-```
-
-To test it out:
-
-``` r
-md_file <- system.file("examples/shiny_transform.md", package = "remarker")
-
-x <- md_ast(md_file)   # Convert Markdown to Pandoc AST
-x1 <- ast_ir(x)        # Convert to remarker IR
-x2 <- ir_transform(x1) # Apply transformations
-x3 <- ir_r(x2)         # Convert IR to R code
-
-app_r(x3)
-```
-
-### Static HTML output
-
-It’s even possible to convert the IR to static HTML, without Shiny.
-
-``` r
-md_file <- system.file("examples/simple_md.md", package = "remarker")
-x <- md_ast(md_file)
-x1 <- ast_ir(x)
-x2 <- ir_r(x1)
-
-# Display output in the Viewer panel
-x2 %>% parse(text = .) %>% eval() %>% htmltools::browsable()
-```
+-   If starting with an R Markdown file, use `knitr::knit()` to run the
+    R code and emit a plain Markdown file.
+-   Use `md_ast()`: this reads in the Markdown document and converts to
+    the Pandoc AST. This requires Pandoc to be installed. (Under the
+    hood, this runs Pandoc to read in the Md file and emit Pandoc AST in
+    JSON format; then the R process ingests the JSON and converts it to
+    an R data structure.)
+-   Use `ast_filter()`: this applies *filter functions* on the Pandoc
+    AST.
+-   Use `ast_md()`, `ast_html()`: Convert the AST to Markdown or HTML.
+    (This converts the R representation of the AST to JSON, then sends
+    the JSON to Pandoc, which converts it to Markdown or HTML.)
