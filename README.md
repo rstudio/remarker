@@ -134,3 +134,75 @@ For interactive use, here is one workflow:
 -   Use `ast_md()`, `ast_html()`: Convert the AST to Markdown or HTML.
     (This converts the R representation of the AST to JSON, then sends
     the JSON to Pandoc, which converts it to Markdown or HTML.)
+
+## Playing with remarker
+
+Remarker can be used to generate Pandoc AST for fragments of Markdown
+content. To do this, call `md_ast()` and pass Markdown content as
+`text`. For example:
+
+``` r
+library(remarker)
+x <- md_ast(text =
+"## Here's a section {.myclass prop=a}
+
+Some *content* for the **section**.")
+
+x
+#> $`pandoc-api-version`
+#> $`pandoc-api-version`[[1]]
+#> [1] 1
+#> 
+#> $`pandoc-api-version`[[2]]
+#> [1] 22
+#> 
+#> 
+#> $meta
+#> named list()
+#> 
+#> $blocks
+#> 
+#> [Blocks]
+#> ├─1─{Block} t:Header  
+#> │   └─c─[list]
+#> │       ├─1─2
+#> │       ├─2─[Attr]
+#> │       │   ├─1─"heres-a-section"
+#> │       │   ├─2─[Texts]
+#> │       │   │   └─1─"myclass"
+#> │       │   └─3─[TextText_s]
+#> │       │       └─1─[TextText]
+#> │       │           ├─1─"prop"
+#> │       │           └─2─"a"
+#> │       └─3─[Inlines]
+#> │           └─1─{Inline} t:Str  c:"Here’s a section"
+#> └─2─{Block} t:Para  
+#>     └─c─[Inlines]
+#>         ├─1─{Inline} t:Str  c:"Some "
+#>         ├─2─{Inline} t:Emph  
+#>         │   └─c─[Inlines]
+#>         │       └─1─{Inline} t:Str  c:"content"
+#>         ├─3─{Inline} t:Str  c:" for the "
+#>         ├─4─{Inline} t:Strong  
+#>         │   └─c─[Inlines]
+#>         │       └─1─{Inline} t:Str  c:"section"
+#>         └─5─{Inline} t:Str  c:"."
+#> attr(,"class")
+#> [1] "Pandoc"
+```
+
+Printing the returned Pandoc AST object will show the tree structure.
+With the tree structure visible, you can easily extract and modify
+components. For example, the tree shows the path to the italicized
+string “content”:
+
+``` r
+x$blocks[[2]]$c[[2]]
+#> 
+#> {Inline} t:Emph  
+#> └─c─[Inlines]
+#>     └─1─{Inline} t:Str  c:"content"
+```
+
+This is an `Inline` object of type `Emph`, which in turn contains an
+`Inlines`.

@@ -120,3 +120,27 @@ For interactive use, here is one workflow:
 * Use `md_ast()`: this reads in the Markdown document and converts to the Pandoc AST. This requires Pandoc to be installed. (Under the hood, this runs Pandoc to read in the Md file and emit Pandoc AST in JSON format; then the R process ingests the JSON and converts it to an R data structure.)
 * Use `ast_filter()`: this applies *filter functions* on the Pandoc AST.
 * Use `ast_md()`, `ast_html()`: Convert the AST to Markdown or HTML. (This converts the R representation of the AST to JSON, then sends the JSON to Pandoc, which converts it to Markdown or HTML.)
+
+
+## Playing with remarker
+
+
+Remarker can be used to generate Pandoc AST for fragments of Markdown content. To do this, call `md_ast()` and pass Markdown content as `text`. For example:
+
+```{r}
+library(remarker)
+x <- md_ast(text =
+"## Here's a section {.myclass prop=a}
+
+Some *content* for the **section**.")
+
+x
+```
+
+Printing the returned Pandoc AST object will show the tree structure. With the tree structure visible, you can easily extract and modify components. For example, the tree shows the path to the italicized string "content":
+
+```{r}
+x$blocks[[2]]$c[[2]]
+```
+
+This is an `Inline` object of type `Emph`, which in turn contains an `Inlines`.
